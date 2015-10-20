@@ -11,3 +11,13 @@ type Client struct {
 	// Endpoints is a list of HTTP endpoints that are available over this client.
 	Endpoints []Endpoint
 }
+
+func (c Client) ContainsJSONEndpoints() bool {
+	for _, ep := range c.Endpoints {
+		if ep.HasJSONParameter() {
+			return true
+		}
+	}
+
+	return false
+}

@@ -1,8 +1,8 @@
 package tigs
 
 import (
-	"fmt"
 	"io"
+	"sort"
 	"strings"
 )
 
@@ -23,8 +23,7 @@ func Generate(w io.Writer, c Client) error {
 	generateNewTypeFunction(out, c)
 
 	for _, ep := range c.Endpoints {
-		ep.client = c
-		generateEndpointFunction(out, ep)
+		ep.Generate(w, c.Name)
 	}
 
 	return nil
@@ -41,6 +40,12 @@ func generateImports(out *formattableWriter, c Client) {
 		`"net/url"`,
 	}
 
+	if c.ContainsJSONEndpoints() {
+		imports = append(imports, `"encoding/json"`)
+		imports = append(imports, `"bytes"`)
+	}
+
+	sort.Strings(imports)
 	out.printf("import (\n\t%s\n)\n", strings.Join(imports, "\n\t"))
 }
 
@@ -59,66 +64,9 @@ func generateNewTypeFunction(out *formattableWriter, c Client) {
 	out.printf(`        return nil, fmt.Errorf("invalid base URL for new %s: %%s", err)`, c.Name)
 	out.printf(`    }`)
 	out.printf(``)
-	out.printf(`    return &FooClient{`)
+	out.printf(`    return &%s{`, c.Name)
 	out.printf(`        BaseURL: u,`)
 	out.printf(`        Client: http.DefaultClient,`)
 	out.printf(`    }, nil`)
-	out.printf(`}`)
-}
-
-func generateEndpointFunction(out *formattableWriter, ep Endpoint) {
-	if ep.Method == "GET" && ep.URL == "" && len(ep.Parameters) == 0 {
-		out.printf(``)
-		out.printf(`func (c *%s) %s() (*http.Response, error) {`, ep.client.Name, ep.Name)
-		out.printf(`    return c.Client.Get(c.BaseURL.String())`)
-		out.printf(`}`)
-		out.printf(``)
-		return
-	}
-
-	args := []string{}
-	for _, p := range ep.Parameters {
-		args = append(args, fmt.Sprintf(p.Name)+" "+p.GeneratedType())
-	}
-
-	out.printf(``)
-	out.printf(`func (c *%s) %s(%s) (*http.Response, error) {`, ep.client.Name, ep.Name, strings.Join(args, ", "))
-	out.printf(`    u, err := c.BaseURL.Parse(%q)`, ep.URL) // TODO check what happens if baseURL = foobar/v1/ and ep path = /blup
-	out.printf(`    if err != nil {`)
-	out.printf(`        return nil, err`)
-	out.printf(`    }`)
-	out.printf(``)
-
-	for _, p := range ep.Parameters {
-		if p.Location == "" || p.Location == "query" {
-			out.printf("\tu.Query().Add(%q, %s)", p.Name, p.StringCode())
-		}
-	}
-
-	if len(ep.Parameters) > 0 {
-		out.printf(``)
-	}
-
-	switch ep.Method {
-	case "GET":
-		out.printf("\treturn c.Client.Get(u.String())")
-	case "POST":
-		out.printf("\tdata, err := json.Marshal(map[string]interface{}{")
-		for _, p := range ep.Parameters {
-			if p.Location == "json" {
-				out.printf("\t\t\"%s\": %s,", p.Name, p.Name) // TODO order parameters and format indent
-			}
-		}
-		out.printf("\t})")
-		out.printf("")
-		out.printf("\tif err != nil {")
-		out.printf("\t\treturn nil, fmt.Errorf(\"could not marshal body for %s: %%s\", err)", ep.Name)
-		out.printf("\t}")
-		out.printf("")
-		out.printf("\treturn c.Client.Post(u.String(), \"application/json\", bytes.NewBuffer(data))")
-	default:
-		panic("NOT IMPLEMENTED")
-	}
-
 	out.printf(`}`)
 }

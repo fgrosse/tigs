@@ -25,12 +25,12 @@ func main() {
 	/// TODO parse client from input
 	c := tigs.Client{
 		Name:    "TestClient",
-		Package: "foobar",
+		Package: "tigs",
 		Endpoints: []tigs.Endpoint{
 			{
 				Name:        "DoStuff",
 				Description: "DoStuff does cool stuff",
-				Method:      "GET",
+				Method:      "POST",
 				URL:         "/do/stuff",
 				Parameters: []tigs.Parameter{
 					{
