@@ -5,7 +5,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Parameter", func() {
+var _ = Describe("parameter", func() {
 	It("should figure out the correct go type from its type string", func() {
 		testData := map[string]string{
 			"string":  "string",
@@ -23,8 +23,8 @@ var _ = Describe("Parameter", func() {
 		}
 
 		for actual, expected := range testData {
-			p := Parameter{Type: actual}
-			Expect(p.GeneratedType()).To(Equal(expected))
+			p := parameter{typeString: actual}
+			Expect(p.generatedType()).To(Equal(expected))
 		}
 	})
 
@@ -44,8 +44,8 @@ var _ = Describe("Parameter", func() {
 		}
 
 		for actual, expected := range testData {
-			p := Parameter{Type: actual, Name: "x"}
-			Expect(p.StringCode()).To(Equal(expected))
+			p := parameter{typeString: actual, name: "x"}
+			Expect(p.stringCode()).To(Equal(expected))
 		}
 	})
 })

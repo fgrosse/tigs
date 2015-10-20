@@ -2,8 +2,8 @@ package main
 
 import "io"
 
-// ServiceClient holds all information necessary to generate a go client for an HTTP web service.
-type ServiceClient struct {
+// A client holds all information necessary to generate a go client for an HTTP web service.
+type client struct {
 	// Name is the name of the generated go type for this client.
 	Name string
 
@@ -11,19 +11,17 @@ type ServiceClient struct {
 	Package string
 
 	// Endpoints is a list of HTTP endpoints that are available over this client.
-	Endpoints []Endpoint
+	Endpoints []endpoint
 }
 
-func (c ServiceClient) GenerateType(w io.Writer) {
-	out := &formattableWriter{w}
-
+func (c client) generateType(out *formattableWriter) {
 	out.printf(`type %s struct {`, c.Name)
 	out.printf(`	BaseURL *url.URL`)
 	out.printf(`	Client  tigshttp.Client`)
 	out.printf(`}`)
 }
 
-func (c ServiceClient) GenerateFactoryFunction(w io.Writer) {
+func (c client) generateFactoryFunction(w io.Writer) {
 	out := &formattableWriter{w}
 
 	out.printf(``)
@@ -40,7 +38,7 @@ func (c ServiceClient) GenerateFactoryFunction(w io.Writer) {
 	out.printf(`}`)
 }
 
-func (c ServiceClient) Imports() []string {
+func (c client) imports() []string {
 	imports := []string{
 		"fmt",
 		"net/http",
@@ -48,16 +46,16 @@ func (c ServiceClient) Imports() []string {
 		"github.com/fgrosse/tigs/tigshttp",
 	}
 
-	if c.ContainsJSONEndpoints() {
+	if c.containsJSONEndpoints() {
 		imports = append(imports, "encoding/json", "bytes", "io/ioutil")
 	}
 
 	return imports
 }
 
-func (c ServiceClient) ContainsJSONEndpoints() bool {
+func (c client) containsJSONEndpoints() bool {
 	for _, ep := range c.Endpoints {
-		if ep.HasJSONParameters() {
+		if ep.hasJSONParameters() {
 			return true
 		}
 	}

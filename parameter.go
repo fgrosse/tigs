@@ -1,41 +1,41 @@
 package main
 
-// Parameter represents some input argument to a HTTP endpoint.
-type Parameter struct {
-	// Name is the name of the argument.
+// parameter represents some input argument to a HTTP endpoint.
+type parameter struct {
+	// name is the name of the argument.
 	// Unless specified otherwise, Name is used to transmit this argument over the wire.
-	Name string
+	name string
 
-	// Description is an optional textual representation of this parameter.
+	// description is an optional textual representation of this parameter.
 	// It is used to generate documentation and is not meant to be used automatically.
-	Description string
+	description string
 
-	// Type represents the type this argument is of.
+	// typeString represents the type this argument is of.
 	// If the type of a parameter is left empty it will be `interface{}` in the generated code.
 	// Valid values are:
-	//     string
+	//     string|text
 	//     int|int32|int64|integer|int
 	//     float|float32|float64
 	//     bool|boolean
-	Type string
+	typeString string
 
-	// Location determines where this argument appears in the request.
+	// location determines where this argument appears in the request.
 	// If the location is left empty it will default to `query`
 	// Valid values are:
 	//      query
 	//      uri       (TODO)
 	//      postField (TODO)
-	//      json      (TODO)
-	Location string
+	//      json
+	location string
 
 	// Required determines whether this parameter is mandatory or optional.
 	// TODO: Implement code to check if required field is there
-	Required bool
+	required bool
 }
 
-// GeneratedType returns the go type as creating during code generation.
-func (p Parameter) GeneratedType() string {
-	switch p.Type {
+// generatedType returns the go type as creating during code generation.
+func (p parameter) generatedType() string {
+	switch p.typeString {
 	case "text":
 		return "string"
 	case "integer":
@@ -47,17 +47,17 @@ func (p Parameter) GeneratedType() string {
 	case "":
 		return "interface{}"
 	default:
-		return p.Type
+		return p.typeString
 	}
 }
 
-// StringCode returns valid go code that will transform the value of this parameter into a string.
-func (p Parameter) StringCode() string {
-	switch p.Type {
+// stringCode returns valid go code that will transform the value of this parameter into a string.
+func (p parameter) stringCode() string {
+	switch p.typeString {
 	case "string":
 		fallthrough
 	case "text":
-		return p.Name
+		return p.name
 	case "int":
 		fallthrough
 	case "integer":
@@ -65,20 +65,20 @@ func (p Parameter) StringCode() string {
 	case "int32":
 		fallthrough
 	case "int64":
-		return `fmt.Sprintf("%d", `+p.Name+`)`
+		return `fmt.Sprintf("%d", ` + p.name + `)`
 	case "float":
 		fallthrough
 	case "float32":
 		fallthrough
 	case "float64":
-		return `fmt.Sprintf("%f", `+p.Name+`)`
+		return `fmt.Sprintf("%f", ` + p.name + `)`
 	case "bool":
 		fallthrough
 	case "boolean":
-		return `fmt.Sprintf("%t", `+p.Name+`)`
+		return `fmt.Sprintf("%t", ` + p.name + `)`
 	case "":
 		fallthrough
 	default:
-		return `fmt.Sprintf("%s", `+p.Name+`)`
+		return `fmt.Sprintf("%s", ` + p.name + `)`
 	}
 }

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"os"
 	"log"
+	"os"
 
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -20,57 +20,58 @@ func main() {
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	/// TODO parse client from input
-	c := ServiceClient{
-		Name:    "TestClient",
-		Package: "tigs",
-		Endpoints: []Endpoint{
-			{
-				Name:        "GetThings",
-				Description: "GetThings fetches things for you!!",
-				Method:      "GET",
-				URL:         "/things",
-			},
-			{
-				Name:        "DoStuff",
-				Description: "DoStuff does cool stuff",
-				Method:      "POST",
-				URL:         "/do/stuff",
-				Parameters: []Parameter{
-					{
-						Name:        "param1",
-						Description: "The first parameter",
-						Type:        "string",
-						Location:    "json",
-						Required:    true,
-					},
-					{
-						Name:        "param2",
-						Description: "The second parameter",
-						Location:    "json",
-						Required:    false,
-					},
-				},
-			},
-			{
-				Name:   "PatchThis",
-				Method: "PATCH",
-				URL:    "/my/awesome/patch",
-				Parameters: []Parameter{
-					{
-						Name:     "param",
-						Type:     "float",
-						Location: "json",
-					},
-				},
-			},
-		},
-	}
+	c := exampleClient // TODO parse client from input instead
 
-	err := Generate(os.Stdout, c)
+	err := generate(os.Stdout, c)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+var exampleClient = client{
+	Name:    "TestClient",
+	Package: "tigs",
+	Endpoints: []endpoint{
+		{
+			Name:        "GetThings",
+			Description: "GetThings fetches things for you!!",
+			Method:      "GET",
+			URL:         "/things",
+		},
+		{
+			Name:        "DoStuff",
+			Description: "DoStuff does cool stuff",
+			Method:      "POST",
+			URL:         "/do/stuff",
+			Parameters: []parameter{
+				{
+					name:        "param1",
+					description: "The first parameter",
+					typeString:  "string",
+					location:    "json",
+					required:    true,
+				},
+				{
+					name:        "param2",
+					description: "The second parameter",
+					location:    "json",
+					required:    false,
+				},
+			},
+		},
+		{
+			Name:   "PatchThis",
+			Method: "PATCH",
+			URL:    "/my/awesome/patch",
+			Parameters: []parameter{
+				{
+					name:       "param",
+					typeString: "float",
+					location:   "json",
+				},
+			},
+		},
+	},
 }
 
 func panicHandler() {

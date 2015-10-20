@@ -7,28 +7,27 @@ import (
 
 	"bytes"
 	"fmt"
-	"io"
 )
 
-var _ = Describe("Endpoint", func() {
-	var output io.Writer
+var _ = Describe("endpoint", func() {
+	var output *formattableWriter
 	BeforeEach(func() {
-		output = &bytes.Buffer{}
+		output = &formattableWriter{&bytes.Buffer{}}
 		fmt.Fprintln(output, "package tigs_test") // generate a package name so the generated code will have no syntax errors
 	})
 
 	It("should generate GET operations", func() {
-		ep := Endpoint{
+		ep := endpoint{
 			Name:   "GetStuff",
 			Method: "GET", URL: "/stuff",
-			Parameters: []Parameter{
-				{Name: "s", Type: "string"},
-				{Name: "i", Type: "int"},
+			Parameters: []parameter{
+				{name: "s", typeString: "string"},
+				{name: "i", typeString: "int"},
 			},
 		}
 
-		ep.Generate(output, "TestClient")
-		Expect(output).To(ContainCode(`
+		ep.generate(output, "TestClient")
+		Expect(output.Writer).To(ContainCode(`
 			func (c *TestClient) GetStuff(s string, i int) (*http.Response, error) {
 				u, err := c.BaseURL.Parse("/stuff")
 				if err != nil {
@@ -45,18 +44,18 @@ var _ = Describe("Endpoint", func() {
 	})
 
 	It("should generate POST operations", func() {
-		ep := Endpoint{
+		ep := endpoint{
 			Name:   "CreateStuff",
 			Method: "POST", URL: "/stuff",
-			Parameters: []Parameter{
-				{Name: "s", Type: "string", Location: "query"},
-				{Name: "b", Type: "bool", Location: "json"},
-				{Name: "i", Type: "int", Location: "json"},
+			Parameters: []parameter{
+				{name: "s", typeString: "string", location: "query"},
+				{name: "b", typeString: "bool", location: "json"},
+				{name: "i", typeString: "int", location: "json"},
 			},
 		}
 
-		ep.Generate(output, "TestClient")
-		Expect(output).To(ContainCode(`
+		ep.generate(output, "TestClient")
+		Expect(output.Writer).To(ContainCode(`
 			func (c *TestClient) CreateStuff(s string, b bool, i int) (*http.Response, error) {
 				u, err := c.BaseURL.Parse("/stuff")
 				if err != nil {
