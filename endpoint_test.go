@@ -1,4 +1,4 @@
-package tigs
+package main
 
 import (
 	. "github.com/fgrosse/gomega-matchers"
@@ -16,6 +16,7 @@ var _ = Describe("Endpoint", func() {
 		output = &bytes.Buffer{}
 		fmt.Fprintln(output, "package tigs_test") // generate a package name so the generated code will have no syntax errors
 	})
+
 	It("should generate GET operations", func() {
 		ep := Endpoint{
 			Name:   "GetStuff",
@@ -37,7 +38,8 @@ var _ = Describe("Endpoint", func() {
 				u.Query().Add("s", s)
 				u.Query().Add("i", fmt.Sprintf("%d", i))
 
-				return c.Client.Get(u.String())
+				req := tigshttp.NewRequest("GET", u)
+				return c.Client.Do(req)
 			}
 		`))
 	})
@@ -72,7 +74,12 @@ var _ = Describe("Endpoint", func() {
 					return nil, fmt.Errorf("could not marshal body for CreateStuff: %s", err)
 				}
 
-				return c.Client.Post(u.String(), "application/json", bytes.NewBuffer(data))
+				req := tigshttp.NewRequest("POST", u)
+				req.Body = ioutil.NopCloser(bytes.NewBuffer(data))
+				req.ContentLength = len(data)
+				req.Header.Set("Content-Type", "application/json")
+
+				return c.Client.Do(req)
 			}
 		`))
 	})

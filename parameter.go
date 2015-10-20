@@ -1,6 +1,6 @@
-package tigs
+package main
 
-// Name represents some input argument to a HTTP endpoint.
+// Parameter represents some input argument to a HTTP endpoint.
 type Parameter struct {
 	// Name is the name of the argument.
 	// Unless specified otherwise, Name is used to transmit this argument over the wire.

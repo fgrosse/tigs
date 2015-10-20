@@ -1,7 +1,7 @@
-package tigs
+package main
 
-// Client holds all information necessary to generate a go client for an HTTP web service.
-type Client struct {
+// ServiceClient holds all information necessary to generate a go client for an HTTP web service.
+type ServiceClient struct {
 	// Name is the name of the generated go type for this client.
 	Name string
 
@@ -12,9 +12,9 @@ type Client struct {
 	Endpoints []Endpoint
 }
 
-func (c Client) ContainsJSONEndpoints() bool {
+func (c ServiceClient) ContainsJSONEndpoints() bool {
 	for _, ep := range c.Endpoints {
-		if ep.HasJSONParameter() {
+		if ep.HasJSONParameters() {
 			return true
 		}
 	}

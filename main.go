@@ -1,19 +1,17 @@
-// The tigsgen binary
 package main
 
 import (
 	"os"
 
-	"github.com/fgrosse/tigs"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"log"
 )
 
 // Version contains the tigsgen version.
-const Version = "0.1.0"
+const Version = "0.2.0"
 
 var (
-	app = kingpin.New("tigsgen", "The HTTP client code generator.\n\nSee https://github.com/fgrosse/tigs for further information.")
+	app = kingpin.New("tigs", "The HTTP client code generator.\n\nSee https://github.com/fgrosse/tigs for further information.")
 )
 
 func main() {
@@ -23,16 +21,22 @@ func main() {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	/// TODO parse client from input
-	c := tigs.Client{
+	c := ServiceClient{
 		Name:    "TestClient",
 		Package: "tigs",
-		Endpoints: []tigs.Endpoint{
+		Endpoints: []Endpoint{
+			{
+				Name:        "GetThings",
+				Description: "GetThings fetches things for you!!",
+				Method:      "GET",
+				URL:         "/things",
+			},
 			{
 				Name:        "DoStuff",
 				Description: "DoStuff does cool stuff",
 				Method:      "POST",
 				URL:         "/do/stuff",
-				Parameters: []tigs.Parameter{
+				Parameters: []Parameter{
 					{
 						Name:        "param1",
 						Description: "The first parameter",
@@ -48,10 +52,22 @@ func main() {
 					},
 				},
 			},
+			{
+				Name:   "PatchThis",
+				Method: "PATCH",
+				URL:    "/my/awesome/patch",
+				Parameters: []Parameter{
+					{
+						Name:     "param",
+						Type:     "float",
+						Location: "json",
+					},
+				},
+			},
 		},
 	}
 
-	err := tigs.Generate(os.Stdout, c)
+	err := Generate(os.Stdout, c)
 	if err != nil {
 		log.Fatal(err)
 	}

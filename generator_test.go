@@ -1,4 +1,4 @@
-package tigs
+package main
 
 import (
 	. "github.com/fgrosse/gomega-matchers"
@@ -12,12 +12,12 @@ import (
 var _ = Describe("Code generation test", func() {
 	var (
 		output io.Writer
-		client Client
+		client ServiceClient
 	)
 
 	BeforeEach(func() {
 		output = &bytes.Buffer{}
-		client = Client{Name: "TestClient", Package: "tigs_test"}
+		client = ServiceClient{Name: "TestClient", Package: "tigs_test"}
 	})
 
 	Describe("generating code", func() {
@@ -30,7 +30,7 @@ var _ = Describe("Code generation test", func() {
 			Expect(output).To(ContainCode(`
 				type MyClient struct {
 					BaseURL *url.URL
-					Client  *http.Client
+					Client  tigshttp.Client
 				}
 			`))
 		})
@@ -66,8 +66,10 @@ var _ = Describe("Code generation test", func() {
 				}}}
 
 				Expect(Generate(output, client)).To(Succeed())
-				Expect(output).To(ImportPackage("encoding/json"))
 				Expect(output).To(ImportPackage("bytes"))
+				Expect(output).To(ImportPackage("encoding/json"))
+				Expect(output).To(ImportPackage("io/ioutil"))
+				Expect(output).To(ImportPackage("github.com/fgrosse/tigs/tigshttp"))
 			})
 		})
 	})

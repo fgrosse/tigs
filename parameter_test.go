@@ -1,4 +1,4 @@
-package tigs
+package main
 
 import (
 	. "github.com/onsi/ginkgo"

@@ -1,4 +1,4 @@
-package tigs
+package main
 
 import (
 	"io"
@@ -37,18 +37,18 @@ func (ep Endpoint) Generate(w io.Writer, clientName string) error {
 
 	out.printf(``)
 	out.printf(`func (c *%s) %s(%s) (*http.Response, error) {`, clientName, ep.Name, strings.Join(args, ", "))
-	out.printf(`    u, err := c.BaseURL.Parse(%q)`, ep.URL) // TODO check what happens if baseURL = foobar/v1/ and ep path = /blup
-	out.printf(`    if err != nil {`)
-	out.printf(`        return nil, err`)
-	out.printf(`    }`)
+	out.printf(`	u, err := c.BaseURL.Parse(%q)`, ep.URL) // TODO check what happens if baseURL = foobar/v1/ and ep path = /blup
+	out.printf(`	if err != nil {`)
+	out.printf(`		return nil, err`)
+	out.printf(`	}`)
 
-	if ep.HasQueryParameter() {
+	if ep.HasQueryParameters() {
 		out.printf(``)
 	}
 
 	for _, p := range ep.Parameters {
 		if p.Location == "" || p.Location == "query" {
-			out.printf("\tu.Query().Add(%q, %s)", p.Name, p.StringCode())
+			out.printf("	u.Query().Add(%q, %s)", p.Name, p.StringCode())
 		}
 	}
 
@@ -56,32 +56,36 @@ func (ep Endpoint) Generate(w io.Writer, clientName string) error {
 		out.printf(``)
 	}
 
-	switch ep.Method {
-	case "GET":
-		out.printf("\treturn c.Client.Get(u.String())")
-	case "POST":
+	if ep.HasJSONParameters() {
 		out.printf("\tdata, err := json.Marshal(map[string]interface{}{")
 		for _, p := range ep.Parameters {
 			if p.Location == "json" {
 				out.printf("\t\t\"%s\": %s,", p.Name, p.Name) // TODO order parameters and format indent
 			}
 		}
-		out.printf("\t})")
+		out.printf("	})")
 		out.printf("")
-		out.printf("\tif err != nil {")
-		out.printf("\t\treturn nil, fmt.Errorf(\"could not marshal body for %s: %%s\", err)", ep.Name)
-		out.printf("\t}")
+		out.printf("	if err != nil {")
+		out.printf("		return nil, fmt.Errorf(\"could not marshal body for %s: %%s\", err)", ep.Name)
+		out.printf("	}")
 		out.printf("")
-		out.printf("\treturn c.Client.Post(u.String(), \"application/json\", bytes.NewBuffer(data))")
-	default:
-		panic("NOT IMPLEMENTED")
 	}
 
-	out.printf(`}`)
+	out.printf("\treq := tigshttp.NewRequest(%q, u)", ep.Method)
+	if ep.HasJSONParameters() {
+		out.printf("\treq.Body = ioutil.NopCloser(bytes.NewBuffer(data))")
+		out.printf("\treq.ContentLength = len(data)")
+		out.printf("\treq.Header.Set(\"Content-Type\", \"application/json\")")
+		out.printf("")
+	}
+
+	out.printf("	return c.Client.Do(req)")
+	out.printf("}")
+
 	return nil
 }
 
-func (ep Endpoint) HasQueryParameter() bool {
+func (ep Endpoint) HasQueryParameters() bool {
 	for _, p := range ep.Parameters {
 		if p.Location == "" || p.Location == "query" {
 			return true
@@ -91,7 +95,7 @@ func (ep Endpoint) HasQueryParameter() bool {
 	return false
 }
 
-func (ep Endpoint) HasJSONParameter() bool {
+func (ep Endpoint) HasJSONParameters() bool {
 	for _, p := range ep.Parameters {
 		if p.Location == "json" {
 			return true
