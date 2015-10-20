@@ -27,7 +27,7 @@ type Endpoint struct {
 	Parameters []Parameter
 }
 
-func (ep Endpoint) Generate(w io.Writer, clientName string) error {
+func (ep Endpoint) Generate(w io.Writer, clientName string) {
 	out := &formattableWriter{w}
 
 	args := []string{}
@@ -81,8 +81,6 @@ func (ep Endpoint) Generate(w io.Writer, clientName string) error {
 
 	out.printf("	return c.Client.Do(req)")
 	out.printf("}")
-
-	return nil
 }
 
 func (ep Endpoint) HasQueryParameters() bool {

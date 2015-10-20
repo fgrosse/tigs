@@ -27,7 +27,7 @@ var _ = Describe("Endpoint", func() {
 			},
 		}
 
-		Expect(ep.Generate(output, "TestClient")).To(Succeed())
+		ep.Generate(output, "TestClient")
 		Expect(output).To(ContainCode(`
 			func (c *TestClient) GetStuff(s string, i int) (*http.Response, error) {
 				u, err := c.BaseURL.Parse("/stuff")
@@ -55,7 +55,7 @@ var _ = Describe("Endpoint", func() {
 			},
 		}
 
-		Expect(ep.Generate(output, "TestClient")).To(Succeed())
+		ep.Generate(output, "TestClient")
 		Expect(output).To(ContainCode(`
 			func (c *TestClient) CreateStuff(s string, b bool, i int) (*http.Response, error) {
 				u, err := c.BaseURL.Parse("/stuff")

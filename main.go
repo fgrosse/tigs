@@ -2,9 +2,9 @@ package main
 
 import (
 	"os"
+	"log"
 
 	"gopkg.in/alecthomas/kingpin.v2"
-	"log"
 )
 
 // Version contains the tigsgen version.
