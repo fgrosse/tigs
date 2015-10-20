@@ -25,8 +25,7 @@ var _ = Describe("Code generation test", func() {
 			client.Name = "MyClient"
 			client.Package = "my_package"
 
-			err := Generate(output, client)
-			Expect(err).NotTo(HaveOccurred())
+			Expect(Generate(output, client)).To(Succeed())
 			Expect(output).To(DeclarePackage("my_package"))
 			Expect(output).To(ContainCode(`
 				type MyClient struct {
@@ -37,9 +36,9 @@ var _ = Describe("Code generation test", func() {
 		})
 
 		It("should provide a New* function", func() {
-			err := Generate(output, client)
-			Expect(err).NotTo(HaveOccurred())
+			Expect(Generate(output, client)).To(Succeed())
 			Expect(output).To(ImportPackage("net/url"))
+			Expect(output).To(ImportPackage("net/http"))
 			Expect(output).To(ContainCode(`
 				func NewTestClient(baseURL string) (*TestClient, error) {
 					u, err := url.Parse(baseURL)
@@ -56,15 +55,9 @@ var _ = Describe("Code generation test", func() {
 		})
 
 		It("should generate simple GET operations without arguments", func() {
-			client.Endpoints = []Endpoint{{
-				Name:        "GetStuff",
-				Description: "This is just a very simple endpoint for this test",
-				Method:      "GET",
-			}}
+			client.Endpoints = []Endpoint{{Name: "GetStuff", Method: "GET"}}
 
-			err := Generate(output, client)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(output).To(ImportPackage("net/http"))
+			Expect(Generate(output, client)).To(Succeed())
 			Expect(output).To(ContainCode(`
 				func (c *TestClient) GetStuff() (*http.Response, error) {
 					return c.Client.Get(c.BaseURL.String())
@@ -74,68 +67,45 @@ var _ = Describe("Code generation test", func() {
 
 		It("should generate GET operations", func() {
 			client.Endpoints = []Endpoint{{
-				Name:        "GetStuff",
-				Description: "This is just a very simple endpoint for this test",
-				Method:      "GET",
-				URL:         "/stuff",
+				Name:   "GetStuff",
+				Method: "GET", URL: "/stuff",
 				Parameters: []Parameter{
 					{Name: "s", Type: "string"},
-					{Name: "b", Type: "bool"},
-					{Name: "q", Type: "boolean"},
 					{Name: "i", Type: "int"},
-					{Name: "n", Type: "integer"},
-					{Name: "i32", Type: "int32"},
-					{Name: "i64", Type: "int64"},
-					{Name: "f32", Type: "float32"},
-					{Name: "f64", Type: "float64"},
-					{Name: "foo"}, // type interface{} is implicit
 				},
 			}}
 
-			err := Generate(output, client)
-			Expect(err).NotTo(HaveOccurred())
+			Expect(Generate(output, client)).To(Succeed())
 			Expect(output).To(ImportPackage("net/http"))
 			Expect(output).To(ContainCode(`
-				func (c *TestClient) GetStuff(s string, b bool, q bool, i int, n int, i32 int32, i64 int64, f32 float32, f64 float64, foo interface{}) (*http.Response, error) {
+				func (c *TestClient) GetStuff(s string, i int) (*http.Response, error) {
 					u, err := c.BaseURL.Parse("/stuff")
 					if err != nil {
 						return nil, err
 					}
 
 					u.Query().Add("s", s)
-					u.Query().Add("b", fmt.Sprintf("%t", b))
-					u.Query().Add("q", fmt.Sprintf("%t", q))
 					u.Query().Add("i", fmt.Sprintf("%d", i))
-					u.Query().Add("n", fmt.Sprintf("%d", n))
-					u.Query().Add("i32", fmt.Sprintf("%d", i32))
-					u.Query().Add("i64", fmt.Sprintf("%d", i64))
-					u.Query().Add("f32", fmt.Sprintf("%f", f32))
-					u.Query().Add("f64", fmt.Sprintf("%f", f64))
-					u.Query().Add("foo", fmt.Sprintf("%s", foo))
 
 					return c.Client.Get(u.String())
 				}
 			`))
 		})
 
-		PIt("should generate POST operations", func() {
+		It("should generate POST operations", func() {
 			client.Endpoints = []Endpoint{{
-				Name:        "GetStuff",
-				Description: "This is just a very simple endpoint for this test",
-				Method:      "GET",
+				Name:   "CreateStuff",
+				Method: "POST", URL: "/stuff",
 				Parameters: []Parameter{
 					{Name: "s", Type: "string", Location: "query"},
 					{Name: "b", Type: "bool", Location: "json"},
 					{Name: "i", Type: "int", Location: "json"},
-					{Name: "foo", Location: "json"},
 				},
 			}}
 
-			err := Generate(output, client)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(output).To(ImportPackage("net/http"))
+			Expect(Generate(output, client)).To(Succeed())
 			Expect(output).To(ContainCode(`
-				func (c *TestClient) GetStuff(s string, b bool, i int, foo interface{}) (*http.Response, error) {
+				func (c *TestClient) CreateStuff(s string, b bool, i int) (*http.Response, error) {
 					u, err := c.BaseURL.Parse("/stuff")
 					if err != nil {
 						return nil, err
@@ -144,13 +114,12 @@ var _ = Describe("Code generation test", func() {
 					u.Query().Add("s", s)
 
 					data, err := json.Marshal(map[string]interface{}{
-						"b":   b,
-						"i":   i,
-						"foo": foo,
+						"b": b,
+						"i": i,
 					})
 
 					if err != nil {
-						return nil, fmt.Errorf("could not marshal body for PostStuff: %s", err)
+						return nil, fmt.Errorf("could not marshal body for CreateStuff: %s", err)
 					}
 
 					return c.Client.Post(u.String(), "application/json", bytes.NewBuffer(data))

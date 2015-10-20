@@ -34,9 +34,10 @@ type Parameter struct {
 }
 
 // GeneratedType returns the go type as creating during code generation.
-// TODO write individual test
 func (p Parameter) GeneratedType() string {
 	switch p.Type {
+	case "text":
+		return "string"
 	case "integer":
 		return "int"
 	case "float":
@@ -51,9 +52,12 @@ func (p Parameter) GeneratedType() string {
 }
 
 // StringCode returns valid go code that will transform the value of this parameter into a string.
-// TODO write individual test
 func (p Parameter) StringCode() string {
 	switch p.Type {
+	case "string":
+		fallthrough
+	case "text":
+		return p.Name
 	case "int":
 		fallthrough
 	case "integer":
@@ -73,8 +77,8 @@ func (p Parameter) StringCode() string {
 	case "boolean":
 		return `fmt.Sprintf("%t", `+p.Name+`)`
 	case "":
-		return `fmt.Sprintf("%s", `+p.Name+`)`
+		fallthrough
 	default:
-		return p.Name
+		return `fmt.Sprintf("%s", `+p.Name+`)`
 	}
 }

@@ -3,7 +3,6 @@ package tigs
 import (
 	"fmt"
 	"io"
-	"sort"
 	"strings"
 )
 
@@ -36,13 +35,12 @@ func generatePackage(out *formattableWriter, c Client) {
 }
 
 func generateImports(out *formattableWriter, c Client) {
-	imports := []string{`"fmt"`, `"net/url"`}
-
-	if len(c.Endpoints) > 0 {
-		imports = append(imports, `"net/http"`)
+	imports := []string{
+		`"fmt"`,
+		`"net/http"`,
+		`"net/url"`,
 	}
 
-	sort.Strings(imports)
 	out.printf("import (\n\t%s\n)\n", strings.Join(imports, "\n\t"))
 }
 
@@ -92,7 +90,9 @@ func generateEndpointFunction(out *formattableWriter, ep Endpoint) {
 	out.printf(``)
 
 	for _, p := range ep.Parameters {
-		out.printf("\tu.Query().Add(%q, %s)", p.Name, p.StringCode())
+		if p.Location == "" || p.Location == "query" {
+			out.printf("\tu.Query().Add(%q, %s)", p.Name, p.StringCode())
+		}
 	}
 
 	if len(ep.Parameters) > 0 {
@@ -102,6 +102,20 @@ func generateEndpointFunction(out *formattableWriter, ep Endpoint) {
 	switch ep.Method {
 	case "GET":
 		out.printf("\treturn c.Client.Get(u.String())")
+	case "POST":
+		out.printf("\tdata, err := json.Marshal(map[string]interface{}{")
+		for _, p := range ep.Parameters {
+			if p.Location == "json" {
+				out.printf("\t\t\"%s\": %s,", p.Name, p.Name) // TODO order parameters and format indent
+			}
+		}
+		out.printf("\t})")
+		out.printf("")
+		out.printf("\tif err != nil {")
+		out.printf("\t\treturn nil, fmt.Errorf(\"could not marshal body for %s: %%s\", err)", ep.Name)
+		out.printf("\t}")
+		out.printf("")
+		out.printf("\treturn c.Client.Post(u.String(), \"application/json\", bytes.NewBuffer(data))")
 	default:
 		panic("NOT IMPLEMENTED")
 	}
