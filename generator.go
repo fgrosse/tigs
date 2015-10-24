@@ -7,13 +7,7 @@ import (
 	"strings"
 )
 
-// TODO generate code comments
-// TODO check if generated code compiles
-// TODO include go generate comment
-// TODO generate tigs comments (with version)
-
 func generate(w io.Writer, c client) error {
-	// TODO test if client is valid and if not then reject it
 	out := &formattableWriter{w}
 	out.printf("package %s\n", c.Package)
 

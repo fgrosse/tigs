@@ -29,7 +29,6 @@ type parameter struct {
 	Location string
 
 	// Required determines whether this parameter is mandatory or optional.
-	// TODO: Implement code to check if required field is there
 	Required bool
 }
 

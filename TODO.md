@@ -10,6 +10,7 @@
 * add comment to generated type
 * support url templates
 * generated code must have nice format
+* check if the given client is valid and if not return an error
 
 ### Endpoint parameters
 * implement default method: GET
@@ -27,3 +28,5 @@
 
 ### General
 * write README
+* add travis integration
+* add coveralls integration

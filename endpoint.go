@@ -57,7 +57,7 @@ func (ep endpoint) generate(out *formattableWriter, clientName string) {
 		out.printf("\tdata, err := json.Marshal(map[string]interface{}{")
 		for _, p := range ep.Parameters {
 			if p.Location == "json" {
-				out.printf("\t\t\"%s\": %s,", p.Name, p.Name) // TODO order parameters and format indent
+				out.printf("\t\t\"%s\": %s,", p.Name, p.Name)
 			}
 		}
 		out.printf("	})")
