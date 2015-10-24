@@ -29,7 +29,7 @@ type endpoint struct {
 func (ep endpoint) generate(out *formattableWriter, clientName string) {
 	args := []string{}
 	for _, p := range ep.Parameters {
-		args = append(args, fmt.Sprintf(p.name)+" "+p.generatedType())
+		args = append(args, fmt.Sprintf(p.Name)+" "+p.generatedType())
 	}
 
 	out.printf(``)
@@ -44,8 +44,8 @@ func (ep endpoint) generate(out *formattableWriter, clientName string) {
 	}
 
 	for _, p := range ep.Parameters {
-		if p.location == "" || p.location == "query" {
-			out.printf("	u.Query().Add(%q, %s)", p.name, p.stringCode())
+		if p.Location == "" || p.Location == "query" {
+			out.printf("	u.Query().Add(%q, %s)", p.Name, p.stringCode())
 		}
 	}
 
@@ -56,8 +56,8 @@ func (ep endpoint) generate(out *formattableWriter, clientName string) {
 	if ep.hasJSONParameters() {
 		out.printf("\tdata, err := json.Marshal(map[string]interface{}{")
 		for _, p := range ep.Parameters {
-			if p.location == "json" {
-				out.printf("\t\t\"%s\": %s,", p.name, p.name) // TODO order parameters and format indent
+			if p.Location == "json" {
+				out.printf("\t\t\"%s\": %s,", p.Name, p.Name) // TODO order parameters and format indent
 			}
 		}
 		out.printf("	})")
@@ -82,7 +82,7 @@ func (ep endpoint) generate(out *formattableWriter, clientName string) {
 
 func (ep endpoint) hasQueryParameters() bool {
 	for _, p := range ep.Parameters {
-		if p.location == "" || p.location == "query" {
+		if p.Location == "" || p.Location == "query" {
 			return true
 		}
 	}
@@ -92,7 +92,7 @@ func (ep endpoint) hasQueryParameters() bool {
 
 func (ep endpoint) hasJSONParameters() bool {
 	for _, p := range ep.Parameters {
-		if p.location == "json" {
+		if p.Location == "json" {
 			return true
 		}
 	}

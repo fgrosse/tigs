@@ -60,7 +60,7 @@ var _ = Describe("client", func() {
 			It("should return all packages necessary if there are json parameters", func() {
 				c := client{
 					Endpoints: []endpoint{
-						{Method: "POST", Name: "Do", Parameters: []parameter{{name: "p", location: "json"}}},
+						{Method: "POST", Name: "Do", Parameters: []parameter{{Name: "p", Location: "json"}}},
 					},
 				}
 

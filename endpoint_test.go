@@ -21,8 +21,8 @@ var _ = Describe("endpoint", func() {
 			Name:   "GetStuff",
 			Method: "GET", URL: "/stuff",
 			Parameters: []parameter{
-				{name: "s", typeString: "string"},
-				{name: "i", typeString: "int"},
+				{Name: "s", TypeString: "string"},
+				{Name: "i", TypeString: "int"},
 			},
 		}
 
@@ -48,9 +48,9 @@ var _ = Describe("endpoint", func() {
 			Name:   "CreateStuff",
 			Method: "POST", URL: "/stuff",
 			Parameters: []parameter{
-				{name: "s", typeString: "string", location: "query"},
-				{name: "b", typeString: "bool", location: "json"},
-				{name: "i", typeString: "int", location: "json"},
+				{Name: "s", TypeString: "string", Location: "query"},
+				{Name: "b", TypeString: "bool", Location: "json"},
+				{Name: "i", TypeString: "int", Location: "json"},
 			},
 		}
 

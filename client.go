@@ -7,6 +7,9 @@ type client struct {
 	// Name is the name of the generated go type for this client.
 	Name string
 
+	// APIVersion is the version of the API this client expects to communicate with.
+	APIVersion string
+
 	// Package is the name of the package that the generated client code will be defined in.
 	Package string
 
