@@ -14,13 +14,14 @@ var (
 	app = kingpin.New("tigs", "The HTTP client code generator.\n\nSee https://github.com/fgrosse/tigs for further information.")
 
 	inputFile = app.Flag("in", "The input yaml file to generate the client from").Required().File()
+	inputType = app.Flag("type", "The input type").Default("guzzle-yaml").Enum("guzzle-yaml", "guzzle-json")
 )
 
 func main() {
 	app.Version(Version)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	d, err := newDecoder("yaml", *inputFile)
+	d, err := newDecoder(*inputType, *inputFile)
 	if err != nil {
 		log.Fatal(err)
 	}
