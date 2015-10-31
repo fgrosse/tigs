@@ -1,37 +1,25 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 )
 
 // An endpoint represents an operation of a service that can be accessed by clients via an URL.
 type endpoint struct {
-	// Name is the symbolic name of this endpoint.
-	// It is used in code generate and does not represent any part of the URL that is actually used.
-	// Every endpoint must always have a Name or it is considered invalid.
-	Name string
-
-	// Description is an optional textual representation of this endpoint.
-	// It is used to generate documentation and is not meant to be used automatically.
+	ClientName  string
+	Name        string
 	Description string
-
-	// Method is the HTTP method of this endpoint.
-	Method string
-
-	// URL is the URL under which the endpoint can be reached.
-	URL string
-
-	// Parameters is the list of parameters that are used to create the HTTP request.
-	Parameters []parameter
-
-	// Abstract determines if this endpoint should not be used to generate a separate function during code generation.
-	Abstract bool
+	Method      string
+	URL         string
+	Parameters  []parameter
+	Abstract    bool
 }
 
-func (ep endpoint) generate(out *formattableWriter, clientName string) {
+func (ep endpoint) Generate() string {
 	if ep.Abstract {
-		return
+		return ""
 	}
 
 	args := []string{}
@@ -39,8 +27,10 @@ func (ep endpoint) generate(out *formattableWriter, clientName string) {
 		args = append(args, fmt.Sprintf(p.Name)+" "+p.generatedType())
 	}
 
+	buf := &bytes.Buffer{}
+	out := &formattableWriter{buf}
 	out.printf(``)
-	out.printf(`func (c *%s) %s(%s) (*http.Response, error) {`, clientName, ep.Name, strings.Join(args, ", "))
+	out.printf(`func (c *%s) %s(%s) (*http.Response, error) {`, ep.ClientName, ep.Name, strings.Join(args, ", "))
 	out.printf(`	u, err := c.BaseURL.Parse(%q)`, ep.URL) // TODO check what happens if baseURL = foobar/v1/ and ep path = /blup
 	out.printf(`	if err != nil {`)
 	out.printf(`		return nil, err`)
@@ -85,6 +75,8 @@ func (ep endpoint) generate(out *formattableWriter, clientName string) {
 
 	out.printf("	return c.Client.Do(req)")
 	out.printf("}")
+
+	return buf.String()
 }
 
 func (ep endpoint) hasQueryParameters() bool {

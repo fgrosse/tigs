@@ -1,0 +1,26 @@
+package {{ .Package }}
+
+import (
+    {{ .Imports }}
+)
+
+// {{ .Description }}
+type {{ .Name }} struct {
+    BaseURL *url.URL
+    Client  tigshttp.Client
+}
+
+// New{{ .Name }} creates a new {{ .Name }} using the http.DefaultClient and
+// the given baseURL. If the base URL can not be parsed an error is returned.
+func New{{ .Name }}(baseURL string) (*{{ .Name }}, error) {
+    u, err := url.Parse(baseURL)
+    if err != nil {
+        return nil, fmt.Errorf("invalid base URL for new {{ .Name }}: %s", err)
+    }
+
+    return &{{ .Name }}{
+        BaseURL: u,
+        Client: http.DefaultClient,
+    }, nil
+}
+{{ range .Endpoints }}{{ .Generate }}{{ end }}

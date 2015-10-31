@@ -20,8 +20,9 @@ var _ = Describe("endpoint", func() {
 		buf := &bytes.Buffer{}
 		output.Writer = buf
 		ep := endpoint{
-			Name:   "GetStuff",
-			Method: "GET", URL: "/stuff",
+			Name:       "GetStuff",
+			ClientName: "TestClient",
+			Method:     "GET", URL: "/stuff",
 			Abstract: true,
 			Parameters: []parameter{
 				{Name: "s", Type: "string"},
@@ -29,22 +30,21 @@ var _ = Describe("endpoint", func() {
 			},
 		}
 
-		ep.generate(output, "TestClient")
-		Expect(buf.Bytes()).To(BeEmpty())
+		Expect(ep.Generate()).To(BeEmpty())
 	})
 
 	It("should generate GET operations", func() {
 		ep := endpoint{
-			Name:   "GetStuff",
-			Method: "GET", URL: "/stuff",
+			Name:       "GetStuff",
+			ClientName: "TestClient",
+			Method:     "GET", URL: "/stuff",
 			Parameters: []parameter{
 				{Name: "s", Type: "string"},
 				{Name: "i", Type: "int"},
 			},
 		}
 
-		ep.generate(output, "TestClient")
-		Expect(output.Writer).To(ContainCode(`
+		Expect("package tigs_test" + ep.Generate()).To(ContainCode(`
 			func (c *TestClient) GetStuff(s string, i int) (*http.Response, error) {
 				u, err := c.BaseURL.Parse("/stuff")
 				if err != nil {
@@ -62,8 +62,9 @@ var _ = Describe("endpoint", func() {
 
 	It("should generate POST operations", func() {
 		ep := endpoint{
-			Name:   "CreateStuff",
-			Method: "POST", URL: "/stuff",
+			Name:       "CreateStuff",
+			ClientName: "TestClient",
+			Method:     "POST", URL: "/stuff",
 			Parameters: []parameter{
 				{Name: "s", Type: "string", Location: "query"},
 				{Name: "b", Type: "bool", Location: "json"},
@@ -71,8 +72,7 @@ var _ = Describe("endpoint", func() {
 			},
 		}
 
-		ep.generate(output, "TestClient")
-		Expect(output.Writer).To(ContainCode(`
+		Expect("package tigs_test" + ep.Generate()).To(ContainCode(`
 			func (c *TestClient) CreateStuff(s string, b bool, i int) (*http.Response, error) {
 				u, err := c.BaseURL.Parse("/stuff")
 				if err != nil {

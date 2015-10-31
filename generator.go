@@ -8,29 +8,37 @@ import (
 )
 
 func generate(w io.Writer, c client) error {
-	out := &formattableWriter{w}
-	out.printf("package %s\n", c.Package)
-
-	imports := c.imports()
-	for i, s := range imports {
-		imports[i] = `"` + s + `"`
-	}
-
-	sort.Strings(imports)
-	out.printf("import (\n\t%s\n)\n", strings.Join(imports, "\n\t"))
-
 	if len(c.Name) < 6 || c.Name[len(c.Name)-6:] != "Client" {
 		c.Name = c.Name + "Client"
 	}
 
-	c.generateType(out)
-	c.generateFactoryFunction(out)
+	stdImports := []string{`"fmt"`, `"net/http"`, `"net/url"`}
+	otherImports := []string{`"github.com/fgrosse/tigs/tigshttp"`}
 
-	for _, ep := range c.Endpoints {
-		ep.generate(out, c.Name)
+	if c.containsJSONEndpoints() {
+		stdImports = append(stdImports, `"encoding/json"`, `"bytes"`, `"io/ioutil"`)
 	}
 
-	return nil
+	sort.Strings(stdImports)
+	sort.Strings(otherImports)
+	c.Imports = strings.Join(stdImports, "\n\t") + "\n\n\t" + strings.Join(otherImports, "\n\t")
+	for i := range c.Endpoints {
+		c.Endpoints[i].ClientName = c.Name
+	}
+
+	if c.Description == "" {
+		c.Description = c.Name + " is an automatically generated HTTP client."
+	}
+
+	if len(c.Description) < len(c.Name) || c.Description[:len(c.Name)] != c.Name {
+		c.Description = c.Name + ": " + c.Description
+	}
+
+	c.Description = strings.TrimSpace(c.Description)
+	c.Description = strings.Replace(c.Description, "\n", "\n// ", -1)
+
+	tmpl := loadTemplate("templates/client.tmpl")
+	return tmpl.Execute(w, c)
 }
 
 type formattableWriter struct {
