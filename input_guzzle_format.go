@@ -52,7 +52,10 @@ type guzzleEndpointDescription struct {
 }
 
 func (d guzzleServiceDescription) translateInto(c *client) {
-	c.Name = d.Name
+	if d.Name != "" {
+		c.Name = d.Name
+	}
+
 	c.Description = d.Description
 	c.APIVersion = d.Version
 	c.Endpoints = d.translateOperations()

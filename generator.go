@@ -6,12 +6,12 @@ import (
 	"strings"
 )
 
-func generate(w io.Writer, c client) error {
+func generate(w io.Writer, c *client) error {
 	template := loadTemplate("templates/client.tmpl")
 
-	generateTypeName(&c)
-	generateImports(&c)
-	generateTypeComment(&c)
+	generateTypeName(c)
+	generateImports(c)
+	generateTypeComment(c)
 
 	return template.Execute(w, c)
 }
