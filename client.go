@@ -1,11 +1,17 @@
 package main
 
-import "io"
+import (
+	"io"
+	"strings"
+)
 
 // A client holds all information necessary to generate a go client for an HTTP web service.
 type client struct {
 	// Name is the name of the generated go type for this client.
 	Name string
+
+	// Description is a textual summary of this client which is used when generating documentation.
+	Description string
 
 	// APIVersion is the version of the API this client expects to communicate with.
 	APIVersion string
@@ -18,10 +24,27 @@ type client struct {
 }
 
 func (c client) generateType(out *formattableWriter) {
+	c.generateTypeComment(out)
+
 	out.printf(`type %s struct {`, c.Name)
 	out.printf(`	BaseURL *url.URL`)
 	out.printf(`	Client  tigshttp.Client`)
 	out.printf(`}`)
+}
+
+func (c client) generateTypeComment(out *formattableWriter) {
+	if c.Description == "" {
+		return
+	}
+
+	comment := c.Description
+	if len(comment) < len(c.Name) || comment[:len(c.Name)] != c.Name {
+		comment = c.Name + ": " + comment
+	}
+
+	comment = strings.TrimSpace(comment)
+	comment = strings.Replace(comment, "\n", "\n// ", -1)
+	out.printf(`// %s`, comment)
 }
 
 func (c client) generateFactoryFunction(w io.Writer) {

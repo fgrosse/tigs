@@ -13,7 +13,7 @@ var _ = Describe("client", func() {
 	var output *formattableWriter
 	BeforeEach(func() {
 		output = &formattableWriter{&bytes.Buffer{}}
-		fmt.Fprintln(output, "package tigs_test") // generate a package name so the generated code will have no syntax errors
+		fmt.Fprintln(output, "package tigs_test\n") // generate a package name so the generated code will have no syntax errors
 	})
 
 	Describe("generating code", func() {
@@ -26,6 +26,37 @@ var _ = Describe("client", func() {
 					BaseURL *url.URL
 					Client  tigshttp.Client
 				}
+			`))
+		})
+
+		It("should generate a type comment", func() {
+			c := client{Name: "MyClient", Package: "my_package", Description: "MyClient is awesome"}
+
+			c.generateType(output)
+			Expect(output.Writer).To(ContainCode(`
+				// MyClient is awesome
+				type MyClient struct {
+			`))
+		})
+
+		It("should always start type comments with the type name", func() {
+			c := client{Name: "MyClient", Package: "my_package", Description: "This is some description"}
+
+			c.generateType(output)
+			Expect(output.Writer).To(ContainCode(`
+				// MyClient: This is some description
+				type MyClient struct {
+			`))
+		})
+
+		It("should prepend each new line with `//` to mark it as comment", func() {
+			c := client{Name: "MyClient", Package: "my_package", Description: "This is some description\nover multiple lines"}
+
+			c.generateType(output)
+			Expect(output.Writer).To(ContainCode(`
+				// MyClient: This is some description
+				// over multiple lines
+				type MyClient struct {
 			`))
 		})
 

@@ -55,9 +55,9 @@ func (d *yamlDecoder) Decode(c *client) error {
 	}
 
 	var unmarshalled struct {
-		Name       string
-		APIVersion string `yaml:"apiVersion"`
-		Version    string // alternative for "apiVersion"
+		Name, Description string
+		APIVersion        string `yaml:"apiVersion"`
+		Version           string // alternative for "apiVersion"
 
 		Endpoints  map[string]yamlEndpoint
 		Operations map[string]yamlEndpoint // alternative for endpoints
@@ -119,6 +119,7 @@ func (d *yamlDecoder) Decode(c *client) error {
 	}
 
 	c.Name = unmarshalled.Name
+	c.Description = unmarshalled.Description
 	c.APIVersion = firstOf(unmarshalled.APIVersion, unmarshalled.Version)
 
 	if len(unmarshalled.Endpoints) > 0 {

@@ -11,6 +11,7 @@ var _ = Describe("decoder", func() {
 	It("should decode from YAML input", func() {
 		yaml := `
 name: TestService
+description: An example client for the amazing TestService
 version: "3.14"
 operations:
 	paginatedOperation:
@@ -36,8 +37,10 @@ operations:
 `
 		d := newYAMLDecoder(strings.NewReader(yaml))
 		c := new(client)
+
 		Expect(d.Decode(c)).To(Succeed())
 		Expect(c.Name).To(Equal("TestService"))
+		Expect(c.Description).To(Equal("An example client for the amazing TestService"))
 		Expect(c.APIVersion).To(Equal("3.14"))
 		Expect(c.Endpoints).To(ConsistOf([]endpoint{
 			{

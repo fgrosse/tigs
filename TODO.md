@@ -5,10 +5,10 @@
 * add support for extending commands
 * add go generate comment
 * add comments to the generated functions
-* add comment to generated type
 * support url templates
 * generated code must have nice format
 * check if the given client is valid and if not return an error
+* normalize endpoint parameter names from snake case to camel case
 
 ### Endpoint parameters
 * implement default method: GET
