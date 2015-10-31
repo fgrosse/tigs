@@ -8,7 +8,7 @@ import (
 )
 
 // Version contains the tigs version.
-const Version = "0.5.1"
+const Version = "0.6.0"
 
 var (
 	app = kingpin.New("tigs", "The HTTP client code generator.\n\nSee https://github.com/fgrosse/tigs for further information.")
@@ -17,6 +17,7 @@ var (
 	name      = app.Flag("name", "The name of the generated HTTP client type.").Default("").String()
 	inputFile = app.Flag("in", "The input yaml file to generate the client from").Required().File()
 	inputType = app.Flag("type", "The input type").Default("guzzle-yaml").Enum("guzzle-yaml", "guzzle-json")
+	verbose   = app.Flag("debug", "Print debug output").Default("false").Bool()
 )
 
 func main() {
@@ -33,6 +34,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	logDebug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 	err = generate(os.Stdout, c)
 	if err != nil {
 		log.Fatal(err)

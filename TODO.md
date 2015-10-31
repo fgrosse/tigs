@@ -1,6 +1,3 @@
-### YAML parser
-* allow importing other yaml files in one yaml file
-
 ### Code generation
 * add support for extending commands
 * add go generate comment
