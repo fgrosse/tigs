@@ -1,17 +1,28 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"sort"
 	"strings"
 )
 
 func generate(w io.Writer, c client) error {
+	template := loadTemplate("templates/client.tmpl")
+
+	generateTypeName(&c)
+	generateImports(&c)
+	generateTypeComment(&c)
+
+	return template.Execute(w, c)
+}
+
+func generateTypeName(c *client) {
 	if len(c.Name) < 6 || c.Name[len(c.Name)-6:] != "Client" {
 		c.Name = c.Name + "Client"
 	}
+}
 
+func generateImports(c *client) {
 	stdImports := []string{`"fmt"`, `"net/http"`, `"net/url"`}
 	otherImports := []string{`"github.com/fgrosse/tigs/tigshttp"`}
 
@@ -25,7 +36,9 @@ func generate(w io.Writer, c client) error {
 	for i := range c.Endpoints {
 		c.Endpoints[i].ClientName = c.Name
 	}
+}
 
+func generateTypeComment(c *client) {
 	if c.Description == "" {
 		c.Description = c.Name + " is an automatically generated HTTP client."
 	}
@@ -36,15 +49,4 @@ func generate(w io.Writer, c client) error {
 
 	c.Description = strings.TrimSpace(c.Description)
 	c.Description = strings.Replace(c.Description, "\n", "\n// ", -1)
-
-	tmpl := loadTemplate("templates/client.tmpl")
-	return tmpl.Execute(w, c)
-}
-
-type formattableWriter struct {
-	io.Writer
-}
-
-func (w *formattableWriter) printf(format string, a ...interface{}) (n int, err error) {
-	return fmt.Fprintf(w, format+"\n", a...)
 }

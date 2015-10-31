@@ -6,7 +6,6 @@
 * add go generate comment
 * add comments to the generated functions
 * support url templates
-* generated code must have nice format
 * check if the given client is valid and if not return an error
 * normalize endpoint parameter names from snake case to camel case
 
@@ -21,7 +20,6 @@
 * add overwrite flag
 * check if generated code compiles (via extra flag?)
 * add optional --out parameter
-* add required package parameter
 * add --forceExport command to force exporting all operations
 
 ### General
