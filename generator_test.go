@@ -36,4 +36,12 @@ var _ = Describe("code generation", func() {
 		Expect(generate(output, c)).To(Succeed())
 		Expect(output).To(ContainCode(`func NewTestClient(baseURL string) (*TestClient, error)`))
 	})
+
+	It("should add `Client` to the type name", func() {
+		c := client{Name: "Foo", Package: "my_package"}
+
+		Expect(generate(output, c)).To(Succeed())
+		Expect(output).To(ContainCode(`type FooClient struct`))
+		Expect(output).To(ContainCode(`func NewFooClient(baseURL string) (*FooClient, error)`))
+	})
 })

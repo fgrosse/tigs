@@ -3,7 +3,6 @@
 
 ### Code generation
 * add support for extending commands
-* add "Client" to the client name if it doesn't already end in "Client"
 * add go generate comment
 * add comments to the generated functions
 * add comment to generated type

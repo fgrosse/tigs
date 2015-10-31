@@ -19,6 +19,10 @@ func generate(w io.Writer, c client) error {
 	sort.Strings(imports)
 	out.printf("import (\n\t%s\n)\n", strings.Join(imports, "\n\t"))
 
+	if len(c.Name) < 6 || c.Name[len(c.Name)-6:] != "Client" {
+		c.Name = c.Name + "Client"
+	}
+
 	c.generateType(out)
 	c.generateFactoryFunction(out)
 
