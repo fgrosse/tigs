@@ -11,6 +11,8 @@ import (
 type decoder struct {
 	unmarshaller
 	io.Reader
+
+	err error // err is the deferred error that might have happened in the call to newDecoder()
 }
 
 var registeredUnmarshallers = map[string]unmarshaller{}
@@ -19,16 +21,20 @@ type unmarshaller interface {
 	Unmarshal(input []byte, c *client) (err error)
 }
 
-func newDecoder(inputType string, input io.Reader) (decoder, error) {
+func newDecoder(inputType string, input io.Reader) decoder {
 	u, isDefined := registeredUnmarshallers[inputType]
 	if !isDefined {
-		return decoder{}, fmt.Errorf("unknown input type %q", inputType)
+		return decoder{err: fmt.Errorf("unknown input type %q", inputType)}
 	}
 
-	return decoder{u, input}, nil
+	return decoder{u, input, nil}
 }
 
 func (d decoder) decode(c *client) error {
+	if d.err != nil {
+		return d.err
+	}
+
 	input, err := ioutil.ReadAll(d)
 	if err != nil {
 		return err

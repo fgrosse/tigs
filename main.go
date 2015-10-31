@@ -8,7 +8,7 @@ import (
 )
 
 // Version contains the tigs version.
-const Version = "0.3.0"
+const Version = "0.4.0"
 
 var (
 	app = kingpin.New("tigs", "The HTTP client code generator.\n\nSee https://github.com/fgrosse/tigs for further information.")
@@ -21,13 +21,8 @@ func main() {
 	app.Version(Version)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	d, err := newDecoder(*inputType, *inputFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	var c client
-	err = d.decode(&c)
+	err := newDecoder(*inputType, *inputFile).decode(&c)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -36,9 +36,7 @@ operations:
 				location: query
 				required: true
 `
-		d, err := newDecoder("guzzle-yaml", strings.NewReader(yaml))
-		Expect(err).NotTo(HaveOccurred())
-
+		d := newDecoder("guzzle-yaml", strings.NewReader(yaml))
 		c := new(client)
 		Expect(d.decode(c)).To(Succeed())
 		Expect(c.Name).To(Equal("TestService"))
@@ -104,9 +102,7 @@ operations:
 			}
 		}
 `
-		d, err := newDecoder("guzzle-json", strings.NewReader(json))
-		Expect(err).NotTo(HaveOccurred())
-
+		d := newDecoder("guzzle-json", strings.NewReader(json))
 		c := new(client)
 		Expect(d.decode(c)).To(Succeed())
 		Expect(c.Name).To(Equal("TestService"))
