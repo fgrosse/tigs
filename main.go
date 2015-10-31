@@ -20,8 +20,13 @@ func main() {
 	app.Version(Version)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
+	d, err := newDecoder("yaml", *inputFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	var c client
-	err := newYAMLDecoder(*inputFile).Decode(&c)
+	err = d.decode(&c)
 	if err != nil {
 		log.Fatal(err)
 	}

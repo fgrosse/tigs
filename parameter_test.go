@@ -23,7 +23,7 @@ var _ = Describe("parameter", func() {
 		}
 
 		for actual, expected := range testData {
-			p := parameter{TypeString: actual}
+			p := parameter{Type: actual}
 			Expect(p.generatedType()).To(Equal(expected))
 		}
 	})
@@ -44,7 +44,7 @@ var _ = Describe("parameter", func() {
 		}
 
 		for actual, expected := range testData {
-			p := parameter{TypeString: actual, Name: "x"}
+			p := parameter{Type: actual, Name: "x"}
 			Expect(p.stringCode()).To(Equal(expected))
 		}
 	})

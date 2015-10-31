@@ -2,24 +2,24 @@ package main
 
 // parameter represents some input argument to a HTTP endpoint.
 type parameter struct {
-	// name is the name of the argument.
+	// Name is the name of the argument.
 	// Unless specified otherwise, Name is used to transmit this argument over the wire.
 	Name string
 
-	// description is an optional textual representation of this parameter.
+	// Description is an optional textual representation of this parameter.
 	// It is used to generate documentation and is not meant to be used automatically.
 	Description string
 
-	// typeString represents the type this argument is of.
+	// Type represents the type this argument is of.
 	// If the type of a parameter is left empty it will be `interface{}` in the generated code.
 	// Valid values are:
 	//     string|text
 	//     int|int32|int64|integer|int
 	//     float|float32|float64
 	//     bool|boolean
-	TypeString string
+	Type string
 
-	// location determines where this argument appears in the request.
+	// Location determines where this argument appears in the request.
 	// If the location is left empty it will default to `query`
 	// Valid values are:
 	//      query
@@ -34,7 +34,7 @@ type parameter struct {
 
 // generatedType returns the go type as creating during code generation.
 func (p parameter) generatedType() string {
-	switch p.TypeString {
+	switch p.Type {
 	case "text":
 		return "string"
 	case "integer":
@@ -46,13 +46,13 @@ func (p parameter) generatedType() string {
 	case "":
 		return "interface{}"
 	default:
-		return p.TypeString
+		return p.Type
 	}
 }
 
 // stringCode returns valid go code that will transform the value of this parameter into a string.
 func (p parameter) stringCode() string {
-	switch p.TypeString {
+	switch p.Type {
 	case "string":
 		fallthrough
 	case "text":
