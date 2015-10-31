@@ -13,15 +13,23 @@ var _ = Describe("decoder", func() {
 name: TestService
 version: "3.14"
 operations:
+	paginatedOperation:
+		summary:  This is an example of an abstract operation
+		abstract: true
+		parameters:
+            page:
+                description: Pagination parameter to request a specific page number.
+                type: integer
+                location: query
+            per_page:
+                description: Pagination parameter to request the page size.
+                type: integer
+                location: query
 	DoStuff:
 		summary: Some test endpoint
 		method:  GET
 		uri:     this/is/a/test
 		parameters:
-			page:
-				description: The requested page number
-				type: integer
-				location: query
 			name:
 				type: string
 				location: query
@@ -37,9 +45,17 @@ operations:
 				Description: "Some test endpoint",
 				Method:      "GET",
 				URL:         "this/is/a/test",
-				Parameters:  []parameter{
+				Parameters: []parameter{
 					{Name: "name", TypeString: "string", Location: "query"},
-					{Name: "page", TypeString: "integer", Location: "query", Description: "The requested page number"},
+				},
+			},
+			{
+				Name:        "paginatedOperation",
+				Abstract:    true,
+				Description: "This is an example of an abstract operation",
+				Parameters: []parameter{
+					{Name: "page", TypeString: "integer", Location: "query", Description: "Pagination parameter to request a specific page number."},
+					{Name: "per_page", TypeString: "integer", Location: "query", Description: "Pagination parameter to request the page size."},
 				},
 			},
 		}))

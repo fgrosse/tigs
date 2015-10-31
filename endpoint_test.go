@@ -16,6 +16,23 @@ var _ = Describe("endpoint", func() {
 		fmt.Fprintln(output, "package tigs_test") // generate a package name so the generated code will have no syntax errors
 	})
 
+	It("should not generate anything if endpoint is abstract", func() {
+		buf := &bytes.Buffer{}
+		output.Writer = buf
+		ep := endpoint{
+			Name:   "GetStuff",
+			Method: "GET", URL: "/stuff",
+			Abstract: true,
+			Parameters: []parameter{
+				{Name: "s", TypeString: "string"},
+				{Name: "i", TypeString: "int"},
+			},
+		}
+
+		ep.generate(output, "TestClient")
+		Expect(buf.Bytes()).To(BeEmpty())
+	})
+
 	It("should generate GET operations", func() {
 		ep := endpoint{
 			Name:   "GetStuff",

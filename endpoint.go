@@ -24,9 +24,16 @@ type endpoint struct {
 
 	// Parameters is the list of parameters that are used to create the HTTP request.
 	Parameters []parameter
+
+	// Abstract determines if this endpoint should not be used to generate a separate function during code generation.
+	Abstract bool
 }
 
 func (ep endpoint) generate(out *formattableWriter, clientName string) {
+	if ep.Abstract {
+		return
+	}
+
 	args := []string{}
 	for _, p := range ep.Parameters {
 		args = append(args, fmt.Sprintf(p.Name)+" "+p.generatedType())

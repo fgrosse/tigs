@@ -47,8 +47,9 @@ func (d *yamlDecoder) Decode(c *client) error {
 	type yamlEndpoint struct {
 		Name, Description, Method, URL string
 
-		Summary string // alternative for "description"
-		URI     string // alternative for "url"
+		Abstract bool
+		Summary  string // alternative for "description"
+		URI      string // alternative for "url"
 
 		Parameters map[string]yamlParameter
 	}
@@ -83,6 +84,7 @@ func (d *yamlDecoder) Decode(c *client) error {
 			ep := eps[epName]
 			r[i] = endpoint{
 				Name:        epName,
+				Abstract:    ep.Abstract,
 				Description: firstOf(ep.Description, ep.Summary),
 				Method:      ep.Method,
 				URL:         firstOf(ep.URL, ep.URI),
