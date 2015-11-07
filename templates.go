@@ -1,8 +1,8 @@
 package main
 
 import (
-	"text/template"
 	"bytes"
+	"text/template"
 )
 
 func loadTemplate(name string) *template.Template {
