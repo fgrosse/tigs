@@ -15,7 +15,6 @@ type endpoint struct {
 	Method      string
 	URL         string
 	Parameters  []parameter
-	Abstract    bool
 }
 
 type formattableWriter struct {
@@ -27,10 +26,6 @@ func (w *formattableWriter) printf(format string, a ...interface{}) (n int, err 
 }
 
 func (ep endpoint) Generate() string {
-	if ep.Abstract {
-		return ""
-	}
-
 	args := []string{}
 	for _, p := range ep.Parameters {
 		args = append(args, fmt.Sprintf(p.Name)+" "+p.generatedType())

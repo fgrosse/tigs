@@ -27,6 +27,7 @@ operations:
                 type: integer
                 location: query
 	DoStuff:
+		extends: paginatedOperation
 		summary: Some test endpoint
 		method:  GET
 		uri:     this/is/a/test
@@ -50,13 +51,6 @@ operations:
 				URL:         "this/is/a/test",
 				Parameters: []parameter{
 					{Name: "name", Type: "string", Location: "query", Required: true},
-				},
-			},
-			{
-				Name:        "paginatedOperation",
-				Abstract:    true,
-				Description: "This is an example of an abstract operation",
-				Parameters: []parameter{
 					{Name: "page", Type: "integer", Location: "query", Description: "Pagination parameter to request a specific page number."},
 					{Name: "per_page", Type: "integer", Location: "query", Description: "Pagination parameter to request the page size."},
 				},
@@ -116,13 +110,6 @@ operations:
 				URL:         "this/is/a/test",
 				Parameters: []parameter{
 					{Name: "name", Type: "string", Location: "query", Required: true},
-				},
-			},
-			{
-				Name:        "paginatedOperation",
-				Abstract:    true,
-				Description: "This is an example of an abstract operation",
-				Parameters: []parameter{
 					{Name: "page", Type: "integer", Location: "query", Description: "Pagination parameter to request a specific page number."},
 					{Name: "per_page", Type: "integer", Location: "query", Description: "Pagination parameter to request the page size."},
 				},

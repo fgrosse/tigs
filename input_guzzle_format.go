@@ -124,9 +124,12 @@ func (d guzzleServiceDescription) translateOperations() []endpoint {
 	return endpoints
 }
 
-func (d guzzleServiceDescription) translateOperation(op guzzleEndpointDescription) endpoint {
-	ep := endpoint{
-		Abstract:    op.Abstract,
+func (d guzzleServiceDescription) translateOperation(op guzzleEndpointDescription) *endpoint {
+	if op.Abstract {
+		return nil
+	}
+
+	ep := &endpoint{
 		Description: op.Summary,
 		Method:      op.Method,
 		URL:         op.URI,
