@@ -43,6 +43,25 @@ var _ = Describe("endpoint", func() {
 		`))
 	})
 
+	It("should default to GET operations if not method is specified", func() {
+		ep := endpoint{
+			Name:       "DoStuff",
+			ClientName: "TestClient",
+			URL: "/stuff",
+		}
+
+		Expect("package tigs_test" + ep.Generate()).To(ContainCode(`
+			func (c *TestClient) DoStuff() (*http.Response, error) {
+				u, err := c.BaseURL.Parse("/stuff")
+				if err != nil {
+					return nil, err
+				}
+				req := tigshttp.NewRequest("GET", u)
+				return c.Client.Do(req)
+			}
+		`))
+	})
+
 	It("should generate POST operations", func() {
 		ep := endpoint{
 			Name:       "CreateStuff",

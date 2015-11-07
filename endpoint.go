@@ -28,6 +28,10 @@ func (w *formattableWriter) printf(format string, a ...interface{}) (n int, err 
 }
 
 func (ep endpoint) Generate() string {
+	if ep.Method == "" {
+		ep.Method = "GET"
+	}
+
 	args := []string{}
 	for _, p := range ep.Parameters {
 		args = append(args, fmt.Sprintf(p.Name)+" "+p.generatedType())

@@ -1,5 +1,4 @@
 ### Code generation
-* add support for extending commands
 * add go generate comment
 * add comments to the generated functions
 * support url templates
@@ -7,7 +6,6 @@
 * normalize endpoint parameter names from snake case to camel case
 
 ### Endpoint parameters
-* implement default method: GET
 * add support for the postField parameter location
 * check if required parameters are actually set
 
