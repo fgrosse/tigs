@@ -6,7 +6,6 @@ import (
 	"os"
 	"sort"
 
-	"github.com/fgrosse/gotility"
 	"gopkg.in/yaml.v2"
 )
 
@@ -40,14 +39,14 @@ type guzzleEndpointDescription struct {
 }
 
 func (u *guzzleServiceDescriptionUnmarshaller) Unmarshal(input []byte, c *client) (err error) {
-	description := guzzleServiceDescription{}
+	description := new(guzzleServiceDescription)
 
 	switch u.typ {
 	case GuzzleYAML:
 		input = sanitizeYAML(input)
-		err = yaml.Unmarshal(input, &description)
+		err = yaml.Unmarshal(input, description)
 	case GuzzleJSON:
-		err = json.Unmarshal(input, &description)
+		err = json.Unmarshal(input, description)
 	default:
 		return fmt.Errorf("unknown guzzleServiceDescriptionUnmarshaller type %q", u.typ)
 	}
@@ -56,7 +55,12 @@ func (u *guzzleServiceDescriptionUnmarshaller) Unmarshal(input []byte, c *client
 		return err
 	}
 
+	if err = description.translateInto(c); err != nil {
+		return err
+	}
+
 	for _, i := range description.Imports {
+		Debug.Printf("Importing referenced file %q\n", i)
 		// TODO i should actually be interpreted as lying relative to the input file
 		importedFile, err := os.Open(i)
 		if err != nil {
@@ -64,7 +68,7 @@ func (u *guzzleServiceDescriptionUnmarshaller) Unmarshal(input []byte, c *client
 		}
 
 		importedDef := new(client)
-		err = newDecoder(u.typ, importedFile).decode(importedDef)
+		err = newDecoder(u.typ, importedFile).decode(importedDef, settings{Inheritance: false}) // TODO pass decoder options and tell it not to resolve inheritance stuff on imports immediately)
 		if err != nil {
 			return fmt.Errorf("could not decode imported file: %s", err)
 		}
@@ -85,14 +89,13 @@ func (u *guzzleServiceDescriptionUnmarshaller) Unmarshal(input []byte, c *client
 		}
 
 		c.Endpoints = append(c.Endpoints, importedDef.Endpoints...)
-		logDebug("Imported %d new endpoints from file %q (total %d)", len(importedDef.Endpoints), i, len(c.Endpoints))
+		Debug.Printf("Imported %d new endpoints from file %q (total %d)\n", len(importedDef.Endpoints), i, len(c.Endpoints))
 	}
 
-	description.translateInto(c)
 	return nil
 }
 
-func (d guzzleServiceDescription) translateInto(c *client) {
+func (d *guzzleServiceDescription) translateInto(c *client) error {
 	if d.Name != "" {
 		c.Name = d.Name
 	}
@@ -100,101 +103,41 @@ func (d guzzleServiceDescription) translateInto(c *client) {
 	c.Description = d.Description
 	c.APIVersion = d.Version
 	c.Endpoints = append(c.Endpoints, d.translateOperations()...)
-}
-
-func (d guzzleServiceDescription) translateOperations() []endpoint {
-	d.processDependencies()
-
-	// make endpoint order deterministic to simplify tests
-	i := 0
-	epNames := make([]string, len(d.Operations))
-	for name := range d.Operations {
-		epNames[i] = name
-		i++
-	}
-	sort.Strings(epNames)
-
-	endpoints := []endpoint{}
-	for _, epName := range epNames {
-		o := d.Operations[epName]
-		if o.Abstract {
-			continue
-		}
-
-		ep := d.translateOperation(o)
-		ep.Name = epName
-		endpoints = append(endpoints, ep)
-	}
-
-	return endpoints
-}
-
-type dependentOperation struct {
-	name   string
-	parent *dependentOperation
-}
-
-func (d guzzleServiceDescription) processDependencies() error {
-	nodes := map[string]*dependentOperation{}
-	leafs := gotility.StringSet{}
-
-	for name := range d.Operations {
-		nodes[name] = &dependentOperation{name, nil}
-		leafs.Set(name)
-	}
-
-	var ok bool
-	for name, o := range d.Operations {
-		if o.Extends == "" {
-			continue
-		}
-
-		nodes[name].parent, ok = nodes[o.Extends]
-		if !ok {
-			return fmt.Errorf("operation %q extends an unknown operation %q", name, o.Extends)
-		}
-
-		leafs.Remove(o.Extends)
-		// TODO detect circles
-	}
-
-	for name := range leafs {
-		p := nodes[name]
-
-		// walk the dependency tree from leaf to root node and copy all non existent parameters from the parents
-		for p.parent != nil {
-			p = p.parent
-
-			if d.Operations[p.name].Method != "" && d.Operations[name].Method == "" {
-				o := d.Operations[name]
-				o.Method = d.Operations[p.name].Method
-				d.Operations[name] = o
-			}
-
-			if d.Operations[p.name].URI != "" && d.Operations[name].URI == "" {
-				o := d.Operations[name]
-				o.URI = d.Operations[p.name].URI
-				d.Operations[name] = o
-			}
-
-			for key, value := range d.Operations[p.name].Parameters {
-				if _, exists := d.Operations[name].Parameters[key]; exists {
-					// don't overwrite parameters that already exist in the children
-					continue
-				}
-
-				d.Operations[name].Parameters[key] = value
-			}
-		}
-	}
 
 	return nil
 }
 
-func (d guzzleServiceDescription) translateOperation(op guzzleEndpointDescription) endpoint {
+func (d *guzzleServiceDescription) translateOperations() []endpoint {
+	endpoints := []endpoint{}
+
+	if len(d.Operations) == 0 {
+		Debug.Printf("Found no endpoints to decode")
+		return endpoints
+	}
+
+	// make endpoint order deterministic to simplify tests
+	epNames := []string{}
+	for name := range d.Operations {
+		epNames = append(epNames, name)
+	}
+	sort.Strings(epNames)
+
+	for _, epName := range epNames {
+		ep := d.translateOperation(d.Operations[epName])
+		ep.Name = epName
+		endpoints = append(endpoints, ep)
+	}
+
+	Debug.Printf("Successfully decoded %d endpoint(s): %q", len(epNames), epNames)
+	return endpoints
+}
+
+func (d *guzzleServiceDescription) translateOperation(op guzzleEndpointDescription) endpoint {
 	ep := endpoint{
 		Description: op.Summary,
 		Method:      op.Method,
+		Extends:     op.Extends,
+		Abstract:    op.Abstract,
 		URL:         op.URI,
 		Parameters:  make([]parameter, len(op.Parameters)),
 	}

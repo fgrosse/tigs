@@ -11,6 +11,8 @@ import (
 type endpoint struct {
 	ClientName  string
 	Name        string
+	Abstract    bool
+	Extends     string
 	Description string
 	Method      string
 	URL         string
