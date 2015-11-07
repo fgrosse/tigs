@@ -14,9 +14,10 @@ name: TestService
 description: An example client for the amazing TestService
 version: "3.14"
 operations:
-	paginatedOperation:
+	fooOperation:
 		summary:  This is an example of an abstract operation
 		abstract: true
+		method:   GET
 		parameters:
             page:
                 description: Pagination parameter to request a specific page number.
@@ -27,9 +28,8 @@ operations:
                 type: integer
                 location: query
 	DoStuff:
-		extends: paginatedOperation
+		extends: fooOperation
 		summary: Some test endpoint
-		method:  GET
 		uri:     this/is/a/test
 		parameters:
 			name:
@@ -65,7 +65,7 @@ operations:
 			"description": "An example client for the amazing TestService",
 			"version": "3.14",
 			"operations": {
-				"paginatedOperation": {
+				"fooOperation": {
 					"summary": "This is an example of an abstract operation",
 					"abstract": true,
 					"parameters": {
@@ -82,6 +82,7 @@ operations:
 					}
 				},
 				"DoStuff": {
+					"extends": "fooOperation",
 					"summary": "Some test endpoint",
 					"method": "GET",
 					"uri": "this/is/a/test",
