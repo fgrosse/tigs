@@ -81,7 +81,7 @@ func (t endpointTree) checkForCycles(node *endpointNode, trace gotility.StringSl
 		if err := t.checkForCycles(child, trace); err != nil {
 			return err
 		}
-		trace.Delete(child.Name)
+		trace.DeleteByValue(child.Name)
 	}
 
 	return nil
