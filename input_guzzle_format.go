@@ -31,7 +31,8 @@ type guzzleServiceDescription struct {
 }
 
 type guzzleEndpointDescription struct {
-	Summary, Method, URI string
+	Summary, URI string
+	HTTPMethod string `json:"httpMethod" yaml:"httpMethod"`
 
 	Abstract   bool
 	Extends    string
@@ -135,7 +136,7 @@ func (d *guzzleServiceDescription) translateOperations() []endpoint {
 func (d *guzzleServiceDescription) translateOperation(op guzzleEndpointDescription) endpoint {
 	ep := endpoint{
 		Description: op.Summary,
-		Method:      op.Method,
+		Method:      op.HTTPMethod,
 		Extends:     op.Extends,
 		Abstract:    op.Abstract,
 		URI:         op.URI,

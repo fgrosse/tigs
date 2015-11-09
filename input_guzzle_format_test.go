@@ -17,7 +17,7 @@ var _ = Describe("Guzzle Service descriptions", func() {
 				fooOperation:
 					summary:  This is an example of an abstract operation
 					abstract: true
-					method:   GET
+					httpMethod: GET
 					parameters:
 						page:
 							description: Pagination parameter to request a specific page number.
@@ -79,7 +79,7 @@ var _ = Describe("Guzzle Service descriptions", func() {
 				"fooOperation": {
 					"summary": "This is an example of an abstract operation",
 					"abstract": true,
-					"method": "GET",
+					"httpMethod": "GET",
 					"parameters": {
 						"page": {
 							"description": "Pagination parameter to request a specific page number.",
