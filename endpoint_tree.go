@@ -92,8 +92,8 @@ func (t endpointTree) inheritAttributes(parent, child *endpointNode) {
 		child.Method = parent.Method
 	}
 
-	if parent.URL != "" && child.URL == "" {
-		child.URL = parent.URL
+	if parent.URI != "" && child.URI == "" {
+		child.URI = parent.URI
 	}
 
 	for _, parentParameter := range parent.Parameters {

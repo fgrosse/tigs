@@ -1,7 +1,6 @@
 ### Code generation
 * add go generate comment
 * add comments to the generated functions
-* support url templates
 * check if the given client is valid and if not return an error
 * normalize endpoint parameter names from snake case to camel case
 
@@ -10,7 +9,6 @@
 * check if required parameters are actually set
 
 ### Tigs binary
-* add verbose logging like in goldigen
 * add forceStdOut flag
 * add overwrite flag
 * check if generated code compiles (via extra flag?)

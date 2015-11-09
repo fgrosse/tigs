@@ -49,7 +49,7 @@ var _ = Describe("Guzzle Service descriptions", func() {
 				Extends:     "fooOperation",
 				Description: "Some test endpoint",
 				Method:      "GET",
-				URL:         "this/is/a/test",
+				URI:         "this/is/a/test",
 				Parameters: []parameter{
 					{Name: "name", Type: "string", Location: "query", Required: true},
 					{Name: "page", Type: "integer", Location: "query", Description: "Pagination parameter to request a specific page number."},
@@ -120,7 +120,7 @@ var _ = Describe("Guzzle Service descriptions", func() {
 				Extends:     "fooOperation",
 				Description: "Some test endpoint",
 				Method:      "GET",
-				URL:         "this/is/a/test",
+				URI:         "this/is/a/test",
 				Parameters: []parameter{
 					{Name: "name", Type: "string", Location: "query", Required: true},
 					{Name: "page", Type: "integer", Location: "query", Description: "Pagination parameter to request a specific page number."},

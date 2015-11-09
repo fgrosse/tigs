@@ -40,7 +40,7 @@ var _ = Describe("endpointTree", func() {
 			{
 				Name:   "Foo",
 				Method: "GET",
-				URL:    "/foo",
+				URI:    "/foo",
 			},
 			{
 				Name:    "Bar",
@@ -55,17 +55,17 @@ var _ = Describe("endpointTree", func() {
 				Name:    "Blup",
 				Extends: "Foo",
 				Method:  "POST",
-				URL:     "/blup",
+				URI:     "/blup",
 			},
 		}
 
 		Expect(newEndpointTree(eps).process()).To(Succeed())
 		Expect(eps[1].Method).To(Equal("GET"))
-		Expect(eps[1].URL).To(Equal("/foo"))
+		Expect(eps[1].URI).To(Equal("/foo"))
 		Expect(eps[2].Method).To(Equal("POST"))
-		Expect(eps[2].URL).To(Equal("/foo"))
+		Expect(eps[2].URI).To(Equal("/foo"))
 		Expect(eps[3].Method).To(Equal("POST"))
-		Expect(eps[3].URL).To(Equal("/blup"))
+		Expect(eps[3].URI).To(Equal("/blup"))
 	})
 
 	It("should work over multiple levels of inheritance", func() {
@@ -73,13 +73,13 @@ var _ = Describe("endpointTree", func() {
 			{
 				Name:       "Foo",
 				Method:     "GET",
-				URL:        "/foo",
+				URI:        "/foo",
 				Parameters: []parameter{{Name: "p1", Type: "string"}},
 			},
 			{
 				Name:       "Bar",
 				Extends:    "Foo",
-				URL:        "/bar",
+				URI:        "/bar",
 				Parameters: []parameter{{Name: "p2", Type: "int"}},
 			},
 			{
@@ -96,25 +96,25 @@ var _ = Describe("endpointTree", func() {
 
 		Expect(newEndpointTree(eps).process()).To(Succeed())
 		Expect(eps[0].Method).To(Equal("GET"))
-		Expect(eps[0].URL).To(Equal("/foo"))
+		Expect(eps[0].URI).To(Equal("/foo"))
 		Expect(eps[0].Parameters).To(ConsistOf([]parameter{
 			{Name: "p1", Type: "string"},
 		}))
 		Expect(eps[1].Method).To(Equal("GET"))
-		Expect(eps[1].URL).To(Equal("/bar"))
+		Expect(eps[1].URI).To(Equal("/bar"))
 		Expect(eps[1].Parameters).To(ConsistOf([]parameter{
 			{Name: "p1", Type: "string"},
 			{Name: "p2", Type: "int"},
 		}))
 		Expect(eps[1].Method).To(Equal("GET"))
-		Expect(eps[1].URL).To(Equal("/bar"))
+		Expect(eps[1].URI).To(Equal("/bar"))
 		Expect(eps[2].Parameters).To(ConsistOf([]parameter{
 			{Name: "p1", Type: "string"},
 			{Name: "p2", Type: "int"},
 			{Name: "p3", Type: "float"},
 		}))
 		Expect(eps[1].Method).To(Equal("GET"))
-		Expect(eps[1].URL).To(Equal("/bar"))
+		Expect(eps[1].URI).To(Equal("/bar"))
 		Expect(eps[3].Parameters).To(ConsistOf([]parameter{
 			{Name: "p1", Type: "string"},
 			{Name: "p2", Type: "int"},

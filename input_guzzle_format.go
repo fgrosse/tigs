@@ -138,7 +138,7 @@ func (d *guzzleServiceDescription) translateOperation(op guzzleEndpointDescripti
 		Method:      op.Method,
 		Extends:     op.Extends,
 		Abstract:    op.Abstract,
-		URL:         op.URI,
+		URI:         op.URI,
 		Parameters:  make([]parameter, len(op.Parameters)),
 	}
 

@@ -23,7 +23,7 @@ type client struct {
 
 func (c client) containsJSONEndpoints() bool {
 	for _, ep := range c.Endpoints {
-		if ep.hasJSONParameters() {
+		if ep.hasParameterWithType("json") {
 			return true
 		}
 	}

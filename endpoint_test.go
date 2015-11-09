@@ -20,7 +20,7 @@ var _ = Describe("endpoint", func() {
 		ep := endpoint{
 			Name:       "GetStuff",
 			ClientName: "TestClient",
-			Method:     "GET", URL: "/stuff",
+			Method:     "GET", URI: "/stuff",
 			Parameters: []parameter{
 				{Name: "s", Type: "string"},
 				{Name: "i", Type: "int"},
@@ -47,7 +47,7 @@ var _ = Describe("endpoint", func() {
 		ep := endpoint{
 			Name:       "DoStuff",
 			ClientName: "TestClient",
-			URL: "/stuff",
+			URI:        "/stuff",
 		}
 
 		Expect("package tigs_test" + ep.Generate()).To(ContainCode(`
@@ -66,7 +66,7 @@ var _ = Describe("endpoint", func() {
 		ep := endpoint{
 			Name:       "CreateStuff",
 			ClientName: "TestClient",
-			Method:     "POST", URL: "/stuff",
+			Method:     "POST", URI: "/stuff",
 			Parameters: []parameter{
 				{Name: "s", Type: "string", Location: "query"},
 				{Name: "b", Type: "bool", Location: "json"},
@@ -97,6 +97,37 @@ var _ = Describe("endpoint", func() {
 				req.ContentLength = len(data)
 				req.Header.Set("Content-Type", "application/json")
 
+				return c.Client.Do(req)
+			}
+		`))
+	})
+
+	It("should support URL templates", func() {
+		ep := endpoint{
+			Name:       "DoStuff",
+			ClientName: "TestClient",
+			URI:        "/stuff/{name}/{id}",
+			Parameters: []parameter{
+				{Name: "id", Type: "string", Location: "uri"},
+				{Name: "name", Type: "string", Location: "uri"},
+				{Name: "debug", Type: "bool", Location: "query"},
+			},
+		}
+
+		Expect("package tigs_test" + ep.Generate()).To(ContainCode(`
+			func (c *TestClient) DoStuff(id string, name string, debug bool) (*http.Response, error) {
+				u, err := tigshttp.ExpandURITemplate("/stuff/{name}/{id}", map[string]interface{}{
+					"id": id,
+					"name": name,
+				})
+
+				if err != nil {
+					return nil, err
+				}
+
+				u.Query().Add("debug", fmt.Sprintf("%t", debug))
+
+				req := tigshttp.NewRequest("GET", u)
 				return c.Client.Do(req)
 			}
 		`))

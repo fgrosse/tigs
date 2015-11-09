@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-// An endpoint represents an operation of a service that can be accessed by clients via an URL.
 type endpoint struct {
 	ClientName  string
 	Name        string
@@ -15,7 +14,7 @@ type endpoint struct {
 	Extends     string
 	Description string
 	Method      string
-	URL         string
+	URI string
 	Parameters  []parameter
 }
 
@@ -41,7 +40,9 @@ func (ep endpoint) Generate() string {
 	out := &formattableWriter{buf}
 	out.printf(``)
 	out.printf(`func (c *%s) %s(%s) (*http.Response, error) {`, ep.ClientName, ep.Name, strings.Join(args, ", "))
-	out.printf(`	u, err := c.BaseURL.Parse(%q)`, ep.URL) // TODO check what happens if baseURL = foobar/v1/ and ep path = /blup
+
+	ep.generateURLCode(out)
+
 	out.printf(`	if err != nil {`)
 	out.printf(`		return nil, err`)
 	out.printf(`	}`)
@@ -60,7 +61,7 @@ func (ep endpoint) Generate() string {
 		out.printf(``)
 	}
 
-	if ep.hasJSONParameters() {
+	if ep.hasParameterWithType("json") {
 		out.printf("\tdata, err := json.Marshal(map[string]interface{}{")
 		for _, p := range ep.Parameters {
 			if p.Location == "json" {
@@ -76,7 +77,7 @@ func (ep endpoint) Generate() string {
 	}
 
 	out.printf("\treq := tigshttp.NewRequest(%q, u)", ep.Method)
-	if ep.hasJSONParameters() {
+	if ep.hasParameterWithType("json") {
 		out.printf("\treq.Body = ioutil.NopCloser(bytes.NewBuffer(data))")
 		out.printf("\treq.ContentLength = len(data)")
 		out.printf("\treq.Header.Set(\"Content-Type\", \"application/json\")")
@@ -89,6 +90,22 @@ func (ep endpoint) Generate() string {
 	return buf.String()
 }
 
+func (ep endpoint) generateURLCode(out *formattableWriter) {
+	if ep.hasParameterWithType("uri") == false {
+		out.printf(`	u, err := c.BaseURL.Parse(%q)`, ep.URI)
+		return
+	}
+
+	out.printf(`	u, err := tigshttp.ExpandURITemplate(%q, map[string]interface{}{`, ep.URI)
+	for _, p := range ep.Parameters {
+		if p.Location == "uri" {
+			out.printf(`		%q: %s,`, p.Name, p.Name)
+		}
+	}
+	out.printf(`	})`)
+	fmt.Fprintln(out)
+}
+
 func (ep endpoint) hasQueryParameters() bool {
 	for _, p := range ep.Parameters {
 		if p.Location == "" || p.Location == "query" {
@@ -99,9 +116,9 @@ func (ep endpoint) hasQueryParameters() bool {
 	return false
 }
 
-func (ep endpoint) hasJSONParameters() bool {
+func (ep endpoint) hasParameterWithType(t string) bool {
 	for _, p := range ep.Parameters {
-		if p.Location == "json" {
+		if p.Location == t {
 			return true
 		}
 	}
