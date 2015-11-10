@@ -9,7 +9,7 @@ import (
 )
 
 // Version contains the tigs version.
-const Version = "0.8.0"
+const Version = "0.9.0"
 
 var (
 	app = kingpin.New("tigs", "The HTTP client code generator.\n\nSee https://github.com/fgrosse/tigs for further information.")

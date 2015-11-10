@@ -150,22 +150,24 @@ func (ep endpoint) Validate() error {
 		return fmt.Errorf("missing name")
 	}
 
-	if ep.URI == "" {
+	if ep.URI == "" && ep.Abstract == false{
 		return fmt.Errorf("missing URI")
 	}
 
-	l := ""
+	exclusiveLocation := ""
 	for _, p := range ep.Parameters {
 		err := p.Validate()
 		if err != nil {
 			return fmt.Errorf("invalid parameter %q: %s", p.Name, err)
 		}
 
-		if l != "" && p.Location != l {
+		if exclusiveLocation != "" && p.Location != exclusiveLocation {
 			return fmt.Errorf("incompatible parameter locations")
 		}
 
-		l = p.Location
+		if p.Location == "json" || p.Location == "postField" {
+			exclusiveLocation = p.Location
+		}
 	}
 
 	return nil
