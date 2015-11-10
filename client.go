@@ -1,4 +1,5 @@
 package main
+import "fmt"
 
 // A client holds all information necessary to generate a go client for an HTTP web service.
 type client struct {
@@ -29,4 +30,23 @@ func (c client) containsJSONEndpoints() bool {
 	}
 
 	return false
+}
+
+func (c client) Validate() error {
+	if c.Package == "" {
+		return fmt.Errorf("missing package")
+	}
+
+	if len(c.Endpoints) == 0 {
+		return fmt.Errorf("no endpoints")
+	}
+
+	for _, ep := range c.Endpoints {
+		err := ep.Validate()
+		if err != nil {
+			return fmt.Errorf("invalid endpoint %q: %s", ep.Name, err)
+		}
+	}
+
+	return nil
 }

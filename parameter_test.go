@@ -48,4 +48,43 @@ var _ = Describe("parameter", func() {
 			Expect(p.stringCode()).To(Equal(expected))
 		}
 	})
+
+	Describe("Validate", func() {
+		var validParameter = func() parameter {
+			return parameter{
+				Name:        "foo",
+				Description: "This is a test endpoint",
+				Type:        "string",
+				Location:    "query",
+			}
+		}
+
+		It("should reject parameters without a Name", func() {
+			c := validParameter()
+
+			c.Name = ""
+			Expect(c.Validate()).To(MatchError("missing name"))
+		})
+
+		It("should reject parameters without a type", func() {
+			c := validParameter()
+
+			c.Type = ""
+			Expect(c.Validate()).To(MatchError("missing type"))
+		})
+
+		It("should reject parameters without a Location", func() {
+			c := validParameter()
+
+			c.Location = ""
+			Expect(c.Validate()).To(MatchError("missing location"))
+		})
+
+		It("should reject parameters with an unknown Location", func() {
+			c := validParameter()
+
+			c.Location = "foobar"
+			Expect(c.Validate()).To(MatchError(`unknown location "foobar"`))
+		})
+	})
 })

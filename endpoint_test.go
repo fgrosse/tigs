@@ -132,4 +132,36 @@ var _ = Describe("endpoint", func() {
 			}
 		`))
 	})
+
+	Describe("Validate", func() {
+		var validEndpoint = func() endpoint {
+			return endpoint{
+				Name:        "DoStuff",
+				Method:      "POST",
+				URI:         "/do/stuff",
+				Description: "This is a test endpoint",
+			}
+		}
+
+		It("should reject endpoints without a Name", func() {
+			c := validEndpoint()
+
+			c.Name = ""
+			Expect(c.Validate()).To(MatchError("missing name"))
+		})
+
+		It("should reject endpoints without an URI", func() {
+			c := validEndpoint()
+
+			c.URI = ""
+			Expect(c.Validate()).To(MatchError("missing URI"))
+		})
+
+		It("should reject endpoints with invalid parameters", func() {
+			c := validEndpoint()
+
+			c.Parameters = []parameter{{Name: ""}}
+			Expect(c.Validate()).To(MatchError(MatchRegexp(`invalid parameter "": .+`)))
+		})
+	})
 })

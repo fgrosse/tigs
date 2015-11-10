@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // parameter represents some input argument to a HTTP endpoint.
 type parameter struct {
 	// Name is the name of the argument.
@@ -80,4 +82,27 @@ func (p parameter) stringCode() string {
 	default:
 		return `fmt.Sprintf("%s", ` + p.Name + `)`
 	}
+}
+
+func (p parameter) Validate() error {
+	if p.Name == "" {
+		return fmt.Errorf("missing name")
+	}
+
+	if p.Type == "" {
+		return fmt.Errorf("missing type")
+	}
+
+	switch p.Location {
+	case "query":
+	case "json":
+	case "uri":
+		// the above are all valid
+	case "":
+		return fmt.Errorf("missing location")
+	default:
+		return fmt.Errorf("unknown location %q", p.Location)
+	}
+
+	return nil
 }

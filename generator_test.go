@@ -17,7 +17,7 @@ var _ = Describe("generator", func() {
 
 	Describe("package import", func() {
 		It("should return all packages necessary for the factory function", func() {
-			c := &client{Package: "test_package"}
+			c := validClient()
 
 			Expect(generate(output, c)).To(Succeed())
 			Expect(output).To(ImportPackage("net/url"))
@@ -26,11 +26,9 @@ var _ = Describe("generator", func() {
 		})
 
 		It("should return all packages necessary if there are json parameters", func() {
-			c := &client{
-				Package: "test_package",
-				Endpoints: []endpoint{
-					{Method: "POST", Name: "Do", Parameters: []parameter{{Name: "p", Location: "json"}}},
-				},
+			c := validClient()
+			c.Endpoints = []endpoint{
+				{Name: "Do", Method: "POST", URI: "/", Parameters: []parameter{{Name: "p", Type: "string", Location: "json"}}},
 			}
 
 			Expect(generate(output, c)).To(Succeed())
@@ -43,7 +41,9 @@ var _ = Describe("generator", func() {
 
 	Describe("type definition", func() {
 		It("should define the client and the correct package", func() {
-			c := &client{Name: "MyClient", Package: "my_package"}
+			c := validClient()
+			c.Name = "MyClient"
+			c.Package = "my_package"
 
 			Expect(generate(output, c)).To(Succeed())
 			Expect(output).To(DeclarePackage("my_package"))
@@ -56,7 +56,9 @@ var _ = Describe("generator", func() {
 		})
 
 		It("should generate a type comment", func() {
-			c := &client{Name: "MyClient", Package: "my_package", Description: "MyClient is awesome"}
+			c := validClient()
+			c.Name = "MyClient"
+			c.Description = "MyClient is awesome"
 
 			Expect(generate(output, c)).To(Succeed())
 			Expect(output).To(ContainCode(`
@@ -66,7 +68,9 @@ var _ = Describe("generator", func() {
 		})
 
 		It("should always start type comments with the type name", func() {
-			c := &client{Name: "MyClient", Package: "my_package", Description: "This is some description"}
+			c := validClient()
+			c.Name = "MyClient"
+			c.Description = "This is some description"
 
 			Expect(generate(output, c)).To(Succeed())
 			Expect(output).To(ContainCode(`
@@ -76,7 +80,9 @@ var _ = Describe("generator", func() {
 		})
 
 		It("should prepend each new line with `//` to mark it as comment", func() {
-			c := &client{Name: "MyClient", Package: "my_package", Description: "This is some description\nover multiple lines"}
+			c := validClient()
+			c.Name = "MyClient"
+			c.Description = "This is some description\nover multiple lines"
 
 			Expect(generate(output, c)).To(Succeed())
 			Expect(output).To(ContainCode(`
@@ -88,7 +94,8 @@ var _ = Describe("generator", func() {
 	})
 
 	It("should provide a New* function", func() {
-		c := &client{Name: "TestClient", Package: "tigs_test"}
+		c := validClient()
+		c.Name = "TestClient"
 
 		Expect(generate(output, c)).To(Succeed())
 		Expect(output).To(ContainCode(`
@@ -107,16 +114,34 @@ var _ = Describe("generator", func() {
 	})
 
 	It("should include the factory function of the client", func() {
-		c := &client{Name: "TestClient", Package: "tigs_test"}
+		c := validClient()
+		c.Name = "TestClient"
+
 		Expect(generate(output, c)).To(Succeed())
 		Expect(output).To(ContainCode(`func NewTestClient(baseURL string) (*TestClient, error)`))
 	})
 
 	It("should add `Client` to the type name", func() {
-		c := &client{Name: "Foo", Package: "my_package"}
+		c := validClient()
+		c.Name = "Foo"
 
 		Expect(generate(output, c)).To(Succeed())
 		Expect(output).To(ContainCode(`type FooClient struct`))
 		Expect(output).To(ContainCode(`func NewFooClient(baseURL string) (*FooClient, error)`))
+	})
+
+	It("should default to `Client` if the type name is empty", func() {
+		c := validClient()
+		c.Name = ""
+
+		Expect(generate(output, c)).To(Succeed())
+		Expect(output).To(ContainCode(`type Client struct`))
+		Expect(output).To(ContainCode(`func NewClient(baseURL string) (*Client, error)`))
+	})
+
+	It("should return an error if the client is invalid", func() {
+		c := &client{}
+		Expect(c.Validate()).NotTo(Succeed())
+		Expect(generate(output, c)).To(MatchError(MatchRegexp("invalid client: .+")))
 	})
 })

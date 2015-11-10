@@ -4,9 +4,14 @@ import (
 	"io"
 	"sort"
 	"strings"
+	"fmt"
 )
 
 func generate(w io.Writer, c *client) error {
+	if err := c.Validate(); err != nil {
+		return fmt.Errorf("invalid client: %s", err)
+	}
+
 	template := loadTemplate("templates/client.tmpl")
 
 	generateTypeName(c)

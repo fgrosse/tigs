@@ -1,7 +1,6 @@
 ### Code generation
 * add go generate comment
 * add comments to the generated functions
-* check if the given client is valid and if not return an error
 * normalize endpoint parameter names from snake case to camel case
 
 ### Endpoint parameters

@@ -14,7 +14,7 @@ type endpoint struct {
 	Extends     string
 	Description string
 	Method      string
-	URI string
+	URI         string
 	Parameters  []parameter
 }
 
@@ -124,4 +124,23 @@ func (ep endpoint) hasParameterWithType(t string) bool {
 	}
 
 	return false
+}
+
+func (ep endpoint) Validate() error {
+	if ep.Name == "" {
+		return fmt.Errorf("missing name")
+	}
+
+	if ep.URI == "" {
+		return fmt.Errorf("missing URI")
+	}
+
+	for _, p := range ep.Parameters {
+		err := p.Validate()
+		if err != nil {
+			return fmt.Errorf("invalid parameter %q: %s", p.Name, err)
+		}
+	}
+
+	return nil
 }
