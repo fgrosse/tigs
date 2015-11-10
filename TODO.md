@@ -4,7 +4,6 @@
 * normalize endpoint parameter names from snake case to camel case
 
 ### Endpoint parameters
-* add support for the postField parameter location
 * check if required parameters are actually set
 
 ### Tigs binary

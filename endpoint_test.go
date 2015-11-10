@@ -62,7 +62,7 @@ var _ = Describe("endpoint", func() {
 		`))
 	})
 
-	It("should generate POST operations", func() {
+	It("should generate POST operations with JSON bodies", func() {
 		ep := endpoint{
 			Name:       "CreateStuff",
 			ClientName: "TestClient",
@@ -101,6 +101,44 @@ var _ = Describe("endpoint", func() {
 			}
 		`))
 	})
+
+	It("should generate POST operations with form bodies", func() {
+		ep := endpoint{
+			Name:       "CreateStuff",
+			ClientName: "TestClient",
+			Method:     "POST", URI: "/stuff",
+			Parameters: []parameter{
+				{Name: "s", Type: "string", Location: "query"},
+				{Name: "b", Type: "bool", Location: "postField"},
+				{Name: "i", Type: "int", Location: "postField"},
+			},
+		}
+
+		Expect("package tigs_test" + ep.Generate()).To(ContainCode(`
+			func (c *TestClient) CreateStuff(s string, b bool, i int) (*http.Response, error) {
+				u, err := c.BaseURL.Parse("/stuff")
+				if err != nil {
+					return nil, err
+				}
+
+				u.Query().Add("s", s)
+
+				data := url.Values{
+					"b": {fmt.Sprintf("%t", b)},
+					"i": {fmt.Sprintf("%d", i)},
+				}
+
+				req := tigshttp.NewRequest("POST", u)
+				req.Body = ioutil.NopCloser(strings.NewReader(data.Encode()))
+				req.ContentLength = len(data)
+				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+				return c.Client.Do(req)
+			}
+		`))
+	})
+
+	// TODO validate we do not have postField and json location params in one operation
 
 	It("should support URL templates", func() {
 		ep := endpoint{
@@ -144,24 +182,34 @@ var _ = Describe("endpoint", func() {
 		}
 
 		It("should reject endpoints without a Name", func() {
-			c := validEndpoint()
+			e := validEndpoint()
 
-			c.Name = ""
-			Expect(c.Validate()).To(MatchError("missing name"))
+			e.Name = ""
+			Expect(e.Validate()).To(MatchError("missing name"))
 		})
 
 		It("should reject endpoints without an URI", func() {
-			c := validEndpoint()
+			e := validEndpoint()
 
-			c.URI = ""
-			Expect(c.Validate()).To(MatchError("missing URI"))
+			e.URI = ""
+			Expect(e.Validate()).To(MatchError("missing URI"))
 		})
 
 		It("should reject endpoints with invalid parameters", func() {
-			c := validEndpoint()
+			e := validEndpoint()
 
-			c.Parameters = []parameter{{Name: ""}}
-			Expect(c.Validate()).To(MatchError(MatchRegexp(`invalid parameter "": .+`)))
+			e.Parameters = []parameter{{Name: ""}}
+			Expect(e.Validate()).To(MatchError(MatchRegexp(`invalid parameter "": .+`)))
+		})
+
+		It("should reject endpoints that contains both JSON and postField parameters", func() {
+			e := validEndpoint()
+
+			e.Parameters = []parameter{
+				{Name: "Foo", Type: "string", Location: "json"},
+				{Name: "Bar", Type: "string", Location: "postField"},
+			}
+			Expect(e.Validate()).To(MatchError(MatchRegexp(`incompatible parameter locations`)))
 		})
 	})
 })

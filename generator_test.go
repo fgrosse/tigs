@@ -37,6 +37,19 @@ var _ = Describe("generator", func() {
 			Expect(output).To(ImportPackage("io/ioutil"))
 			Expect(output).To(ImportPackage("github.com/fgrosse/tigs/tigshttp"))
 		})
+
+		It("should return all packages necessary if there are postField parameters", func() {
+			c := validClient()
+			c.Endpoints = []endpoint{
+				{Name: "Do", Method: "POST", URI: "/", Parameters: []parameter{{Name: "p", Type: "string", Location: "postField"}}},
+			}
+
+			Expect(generate(output, c)).To(Succeed())
+			Expect(output).To(ImportPackage("strings"))
+			Expect(output).To(ImportPackage("net/http"))
+			Expect(output).To(ImportPackage("io/ioutil"))
+			Expect(output).To(ImportPackage("github.com/fgrosse/tigs/tigshttp"))
+		})
 	})
 
 	Describe("type definition", func() {

@@ -62,10 +62,10 @@ func (ep endpoint) Generate() string {
 	}
 
 	if ep.hasParameterWithType("json") {
-		out.printf("\tdata, err := json.Marshal(map[string]interface{}{")
+		out.printf("	data, err := json.Marshal(map[string]interface{}{")
 		for _, p := range ep.Parameters {
 			if p.Location == "json" {
-				out.printf("\t\t\"%s\": %s,", p.Name, p.Name)
+				out.printf("\t\t%q: %s,", p.Name, p.Name)
 			}
 		}
 		out.printf("	})")
@@ -76,11 +76,30 @@ func (ep endpoint) Generate() string {
 		out.printf("")
 	}
 
+	if ep.hasParameterWithType("postField") {
+		out.printf("	data := url.Values{")
+		for _, p := range ep.Parameters {
+			if p.Location == "postField" {
+				out.printf("\t\t%q: {%s},", p.Name, p.stringCode())
+			}
+		}
+		out.printf("	}")
+		out.printf("")
+	}
+
 	out.printf("\treq := tigshttp.NewRequest(%q, u)", ep.Method)
+
 	if ep.hasParameterWithType("json") {
 		out.printf("\treq.Body = ioutil.NopCloser(bytes.NewBuffer(data))")
 		out.printf("\treq.ContentLength = len(data)")
 		out.printf("\treq.Header.Set(\"Content-Type\", \"application/json\")")
+		out.printf("")
+	}
+
+	if ep.hasParameterWithType("postField") {
+		out.printf("\treq.Body = ioutil.NopCloser(strings.NewReader(data.Encode()))")
+		out.printf("\treq.ContentLength = len(data)")
+		out.printf("\treq.Header.Set(\"Content-Type\", \"application/x-www-form-urlencoded\")")
 		out.printf("")
 	}
 
@@ -135,11 +154,18 @@ func (ep endpoint) Validate() error {
 		return fmt.Errorf("missing URI")
 	}
 
+	l := ""
 	for _, p := range ep.Parameters {
 		err := p.Validate()
 		if err != nil {
 			return fmt.Errorf("invalid parameter %q: %s", p.Name, err)
 		}
+
+		if l != "" && p.Location != l {
+			return fmt.Errorf("incompatible parameter locations")
+		}
+
+		l = p.Location
 	}
 
 	return nil

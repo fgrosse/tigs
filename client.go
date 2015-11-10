@@ -32,6 +32,16 @@ func (c client) containsJSONEndpoints() bool {
 	return false
 }
 
+func (c client) containsPostfieldEndpoints() bool {
+	for _, ep := range c.Endpoints {
+		if ep.hasParameterWithType("postField") {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (c client) Validate() error {
 	if c.Package == "" {
 		return fmt.Errorf("missing package")

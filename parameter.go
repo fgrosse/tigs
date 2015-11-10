@@ -97,6 +97,7 @@ func (p parameter) Validate() error {
 	case "query":
 	case "json":
 	case "uri":
+	case "postField":
 		// the above are all valid
 	case "":
 		return fmt.Errorf("missing location")

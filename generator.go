@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 	"fmt"
+	"github.com/fgrosse/gotility"
 )
 
 func generate(w io.Writer, c *client) error {
@@ -28,12 +29,21 @@ func generateTypeName(c *client) {
 }
 
 func generateImports(c *client) {
-	stdImports := []string{`"fmt"`, `"net/http"`, `"net/url"`}
+	stdImportsSet := gotility.NewStringSet(`"fmt"`, `"net/http"`, `"net/url"`)
 	otherImports := []string{`"github.com/fgrosse/tigs/tigshttp"`}
 
 	if c.containsJSONEndpoints() {
-		stdImports = append(stdImports, `"encoding/json"`, `"bytes"`, `"io/ioutil"`)
+		stdImportsSet.Set(`"encoding/json"`)
+		stdImportsSet.Set(`"bytes"`)
+		stdImportsSet.Set(`"io/ioutil"`)
 	}
+
+	if c.containsPostfieldEndpoints() {
+		stdImportsSet.Set(`"strings"`)
+		stdImportsSet.Set(`"io/ioutil"`)
+	}
+
+	stdImports := stdImportsSet.All()
 
 	sort.Strings(stdImports)
 	sort.Strings(otherImports)

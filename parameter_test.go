@@ -60,31 +60,31 @@ var _ = Describe("parameter", func() {
 		}
 
 		It("should reject parameters without a Name", func() {
-			c := validParameter()
+			p := validParameter()
 
-			c.Name = ""
-			Expect(c.Validate()).To(MatchError("missing name"))
+			p.Name = ""
+			Expect(p.Validate()).To(MatchError("missing name"))
 		})
 
 		It("should reject parameters without a type", func() {
-			c := validParameter()
+			p := validParameter()
 
-			c.Type = ""
-			Expect(c.Validate()).To(MatchError("missing type"))
+			p.Type = ""
+			Expect(p.Validate()).To(MatchError("missing type"))
 		})
 
 		It("should reject parameters without a Location", func() {
-			c := validParameter()
+			p := validParameter()
 
-			c.Location = ""
-			Expect(c.Validate()).To(MatchError("missing location"))
+			p.Location = ""
+			Expect(p.Validate()).To(MatchError("missing location"))
 		})
 
 		It("should reject parameters with an unknown Location", func() {
-			c := validParameter()
+			p := validParameter()
 
-			c.Location = "foobar"
-			Expect(c.Validate()).To(MatchError(`unknown location "foobar"`))
+			p.Location = "foobar"
+			Expect(p.Validate()).To(MatchError(`unknown location "foobar"`))
 		})
 	})
 })
