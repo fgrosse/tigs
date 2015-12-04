@@ -32,7 +32,7 @@ type guzzleServiceDescription struct {
 
 type guzzleEndpointDescription struct {
 	Summary, URI string
-	HTTPMethod string `json:"httpMethod" yaml:"httpMethod"`
+	HTTPMethod   string `json:"httpMethod" yaml:"httpMethod"`
 
 	Abstract   bool
 	Extends    string

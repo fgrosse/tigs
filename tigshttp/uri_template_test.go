@@ -10,8 +10,8 @@ import (
 var _ = Describe("URITemplate", func() {
 	It("should expand simple variables", func() {
 		u, err := tigshttp.ExpandURITemplate("/foo/{bar}/baz/{id}-{state}", map[string]interface{}{
-			"bar": "TEST",
-			"id": 42,
+			"bar":   "TEST",
+			"id":    42,
 			"state": true,
 		})
 

@@ -4,8 +4,9 @@ import (
 	"log"
 	"os"
 
-	"gopkg.in/alecthomas/kingpin.v2"
 	"io/ioutil"
+
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 // Version contains the tigs version.
@@ -15,7 +16,7 @@ var (
 	app = kingpin.New("tigs", "The HTTP client code generator.\n\nSee https://github.com/fgrosse/tigs for further information.")
 
 	pkg       = app.Flag("package", "The name of the package the generated type should be defined in").Required().String()
-	Name = app.Flag("name", "The name of the generated HTTP client type.").Default("").String()
+	Name      = app.Flag("name", "The name of the generated HTTP client type.").Default("").String()
 	inputFile = app.Flag("in", "The input yaml file to generate the client from").Required().File()
 	inputType = app.Flag("type", "The input type").Default("guzzle-yaml").Enum("guzzle-yaml", "guzzle-json")
 	verbose   = app.Flag("debug", "Print debug output").Default("false").Bool()

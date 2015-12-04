@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"sort"
 	"strings"
-	"fmt"
+
 	"github.com/fgrosse/gotility"
 )
 

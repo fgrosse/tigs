@@ -1,4 +1,5 @@
 package main
+
 import "fmt"
 
 // A client holds all information necessary to generate a go client for an HTTP web service.

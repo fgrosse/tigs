@@ -150,7 +150,7 @@ func (ep endpoint) Validate() error {
 		return fmt.Errorf("missing name")
 	}
 
-	if ep.URI == "" && ep.Abstract == false{
+	if ep.URI == "" && ep.Abstract == false {
 		return fmt.Errorf("missing URI")
 	}
 
