@@ -11,7 +11,6 @@
 * add overwrite flag
 * check if generated code compiles (via extra flag?)
 * add optional --out parameter
-* add --forceExport command to force exporting all operations
 
 ### General
 * write README

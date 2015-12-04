@@ -3,9 +3,10 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/fgrosse/gotility"
 	"io"
 	"strings"
+
+	"github.com/fgrosse/gotility"
 )
 
 type endpoint struct {

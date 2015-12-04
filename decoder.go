@@ -6,6 +6,8 @@ import (
 	"io"
 	"io/ioutil"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 type decoder struct {
@@ -16,7 +18,8 @@ type decoder struct {
 }
 
 type settings struct {
-	Inheritance bool
+	inheritance bool
+	forceExport bool
 }
 
 var registeredUnmarshallers = map[string]unmarshaller{}
@@ -49,11 +52,27 @@ func (d decoder) decode(c *client, s settings) error {
 		return err
 	}
 
-	if s.Inheritance {
+	if s.forceExport {
+		for i := range c.Endpoints {
+			c.Endpoints[i].Name = upperCaseFirst(c.Endpoints[i].Name)
+			c.Endpoints[i].Extends = upperCaseFirst(c.Endpoints[i].Extends)
+		}
+	}
+
+	if s.inheritance {
 		return newEndpointTree(c.Endpoints).process()
 	}
 
 	return nil
+}
+
+func upperCaseFirst(s string) string {
+	if s == "" {
+		return ""
+	}
+
+	r, n := utf8.DecodeRuneInString(s)
+	return string(unicode.ToUpper(r)) + s[n:]
 }
 
 func sanitizeYAML(input []byte) []byte {

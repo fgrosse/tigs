@@ -138,8 +138,6 @@ var _ = Describe("endpoint", func() {
 		`))
 	})
 
-	// TODO validate we do not have postField and json location params in one operation
-
 	It("should support URL templates", func() {
 		ep := endpoint{
 			Name:       "DoStuff",

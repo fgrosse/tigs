@@ -39,7 +39,7 @@ var _ = Describe("Guzzle Service descriptions", func() {
 `
 		d := newDecoder("guzzle-yaml", strings.NewReader(yaml))
 		c := new(client)
-		Expect(d.decode(c, settings{Inheritance: true})).To(Succeed())
+		Expect(d.decode(c, settings{inheritance: true})).To(Succeed())
 		Expect(c.Name).To(Equal("TestService"))
 		Expect(c.Description).To(Equal("An example client for the amazing TestService"))
 		Expect(c.APIVersion).To(Equal("3.14"))
@@ -110,7 +110,7 @@ var _ = Describe("Guzzle Service descriptions", func() {
 `
 		d := newDecoder("guzzle-json", strings.NewReader(json))
 		c := new(client)
-		Expect(d.decode(c, settings{Inheritance: true})).To(Succeed())
+		Expect(d.decode(c, settings{inheritance: true})).To(Succeed())
 		Expect(c.Name).To(Equal("TestService"))
 		Expect(c.Description).To(Equal("An example client for the amazing TestService"))
 		Expect(c.APIVersion).To(Equal("3.14"))
@@ -148,6 +148,6 @@ var _ = Describe("Guzzle Service descriptions", func() {
 					extends: fooOperation
 `
 		d := newDecoder("guzzle-yaml", strings.NewReader(yaml))
-		Expect(d.decode(new(client), settings{Inheritance: true})).To(MatchError(`endpoint "DoStuff" extends an unknown endpoint "fooOperation"`))
+		Expect(d.decode(new(client), settings{inheritance: true})).To(MatchError(`endpoint "DoStuff" extends an unknown endpoint "fooOperation"`))
 	})
 })

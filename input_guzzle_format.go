@@ -69,7 +69,7 @@ func (u *guzzleServiceDescriptionUnmarshaller) Unmarshal(input []byte, c *client
 		}
 
 		importedDef := new(client)
-		err = newDecoder(u.typ, importedFile).decode(importedDef, settings{Inheritance: false}) // TODO pass decoder options and tell it not to resolve inheritance stuff on imports immediately)
+		err = newDecoder(u.typ, importedFile).decode(importedDef, settings{inheritance: false}) // TODO pass decoder options and tell it not to resolve inheritance stuff on imports immediately)
 		if err != nil {
 			return fmt.Errorf("could not decode imported file: %s", err)
 		}
