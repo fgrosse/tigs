@@ -94,7 +94,7 @@ var _ = Describe("endpoint", func() {
 
 				req := tigshttp.NewRequest("POST", u)
 				req.Body = ioutil.NopCloser(bytes.NewBuffer(data))
-				req.ContentLength = len(data)
+				req.ContentLength = int64(len(data))
 				req.Header.Set("Content-Type", "application/json")
 
 				return c.Client.Do(req)
@@ -130,7 +130,7 @@ var _ = Describe("endpoint", func() {
 
 				req := tigshttp.NewRequest("POST", u)
 				req.Body = ioutil.NopCloser(strings.NewReader(data.Encode()))
-				req.ContentLength = len(data)
+				req.ContentLength = int64(len(data))
 				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 				return c.Client.Do(req)

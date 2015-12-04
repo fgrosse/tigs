@@ -93,14 +93,14 @@ func (ep endpoint) Generate() string {
 
 	if ep.hasParameterWithType("json") {
 		out.printf("\treq.Body = ioutil.NopCloser(bytes.NewBuffer(data))")
-		out.printf("\treq.ContentLength = len(data)")
+		out.printf("\treq.ContentLength = int64(len(data))")
 		out.printf("\treq.Header.Set(\"Content-Type\", \"application/json\")")
 		out.printf("")
 	}
 
 	if ep.hasParameterWithType("postField") {
 		out.printf("\treq.Body = ioutil.NopCloser(strings.NewReader(data.Encode()))")
-		out.printf("\treq.ContentLength = len(data)")
+		out.printf("\treq.ContentLength = int64(len(data))")
 		out.printf("\treq.Header.Set(\"Content-Type\", \"application/x-www-form-urlencoded\")")
 		out.printf("")
 	}
