@@ -10,8 +10,8 @@ type {{ .Name }} struct {
     Client  tigshttp.Client
 }
 
-// New{{ .Name }} creates a new {{ .Name }} using the http.DefaultClient and
-// the given baseURL. If the base URL can not be parsed an error is returned.
+// New{{ .Name }} creates a new {{ .Name }} using the http.DefaultClient and the given baseURL.
+// If the base URL can not be parsed an error is returned.
 func New{{ .Name }}(baseURL string) (*{{ .Name }}, error) {
     u, err := url.Parse(baseURL)
     if err != nil {
