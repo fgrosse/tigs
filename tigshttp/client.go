@@ -17,3 +17,14 @@ type ClientFunc func(*http.Request) (*http.Response, error)
 func (f ClientFunc) Do(r *http.Request) (*http.Response, error) {
 	return f(r)
 }
+
+// A decorator wraps a Client with additional behaviour or capabilities.
+type Decorator func(Client) Client
+
+// Decorate wraps a Client with all the given Decorators, in order.
+func Decorate(c Client, ds ...Decorator) Client {
+	for _, d := range ds {
+		c = d(c)
+	}
+	return c
+}
