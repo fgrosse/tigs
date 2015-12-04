@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/fgrosse/gotility"
 	"io"
 	"strings"
 )
@@ -154,19 +155,22 @@ func (ep endpoint) Validate() error {
 		return fmt.Errorf("missing URI")
 	}
 
-	exclusiveLocation := ""
+	exclusiveLocations := gotility.NewStringSet("json", "postField")
+	foundExclusiveLocations := gotility.StringSet{}
+
 	for _, p := range ep.Parameters {
 		err := p.Validate()
 		if err != nil {
 			return fmt.Errorf("invalid parameter %q: %s", p.Name, err)
 		}
 
-		if exclusiveLocation != "" && p.Location != exclusiveLocation {
-			return fmt.Errorf("incompatible parameter locations")
-		}
+		if exclusiveLocations.Contains(p.Location) {
+			if len(foundExclusiveLocations) > 0 && !foundExclusiveLocations.Contains(p.Location) {
+				return fmt.Errorf("incompatible parameter locations: can not mix %q and %q parameters",
+					foundExclusiveLocations.All()[0], p.Location)
+			}
 
-		if p.Location == "json" || p.Location == "postField" {
-			exclusiveLocation = p.Location
+			foundExclusiveLocations.Set(p.Location)
 		}
 	}
 

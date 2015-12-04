@@ -209,7 +209,17 @@ var _ = Describe("endpoint", func() {
 				{Name: "Foo", Type: "string", Location: "json"},
 				{Name: "Bar", Type: "string", Location: "postField"},
 			}
-			Expect(e.Validate()).To(MatchError(MatchRegexp(`incompatible parameter locations`)))
+			Expect(e.Validate()).To(MatchError(MatchRegexp(`incompatible parameter locations: can not mix "json" and "postField" parameters`)))
+		})
+
+		It("should not reject endpoints that contains both JSON and uri parameters", func() {
+			e := validEndpoint()
+
+			e.Parameters = []parameter{
+				{Name: "Foo", Type: "string", Location: "json"},
+				{Name: "Bar", Type: "string", Location: "uri"},
+			}
+			Expect(e.Validate()).To(Succeed())
 		})
 	})
 })
