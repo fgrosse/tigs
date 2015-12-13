@@ -21,7 +21,7 @@ func Logged(logf func(string, ...interface{}), trigger func() bool) Decorator {
 
 				if err != nil {
 					logf(
-						"tigshttp client error",
+						"Tigshttp client error",
 						"method", r.Method,
 						"url", r.URL,
 						"proto", r.Proto,
@@ -31,7 +31,8 @@ func Logged(logf func(string, ...interface{}), trigger func() bool) Decorator {
 					)
 				} else {
 					logf(
-						"tigshttp client response",
+						"Tigshttp client response",
+						"header", r.Header,
 						"method", r.Method,
 						"url", r.URL,
 						"proto", r.Proto,
