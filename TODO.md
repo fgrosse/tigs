@@ -7,10 +7,9 @@
 * check if required parameters are actually set
 
 ### Tigs binary
-* add forceStdOut flag
+* add optional --out parameter
 * add overwrite flag
 * check if generated code compiles (via extra flag?)
-* add optional --out parameter
 
 ### General
 * write README
